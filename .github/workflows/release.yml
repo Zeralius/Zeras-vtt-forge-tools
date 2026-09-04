@@ -97,10 +97,25 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          gh release create "${{ steps.target.outputs.tag }}" \
-            --title "${{ steps.target.outputs.title }} ${{ steps.target.outputs.version }}" \
-            --notes-file notes.md \
-            --generate-notes \
-            --verify-tag \
-            "dist/${{ steps.target.outputs.module_id }}.zip" \
-            "dist/${{ steps.target.outputs.module_id }}.module.json#module.json"
+          TAG="${{ steps.target.outputs.tag }}"
+          MODULE_ID="${{ steps.target.outputs.module_id }}"
+          TITLE="${{ steps.target.outputs.title }} ${{ steps.target.outputs.version }}"
+
+          # Moving a tag re-runs this workflow, and so does re-running it by hand, so publishing
+          # has to cope with the release already being there instead of failing on the second go.
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release $TAG already exists, updating it in place."
+            gh release edit "$TAG" --title "$TITLE" --notes-file notes.md
+            gh release upload "$TAG" \
+              "dist/${MODULE_ID}.zip" \
+              "dist/${MODULE_ID}.module.json" \
+              --clobber
+          else
+            gh release create "$TAG" \
+              --title "$TITLE" \
+              --notes-file notes.md \
+              --generate-notes \
+              --verify-tag \
+              "dist/${MODULE_ID}.zip" \
+              "dist/${MODULE_ID}.module.json"
+          fi
