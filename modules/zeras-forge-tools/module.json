@@ -1,0 +1,30 @@
+{
+  "id": "zeras-forge-tools",
+  "title": "Zera's VTT Forge Tools",
+  "description": "Installs every module in Zera's VTT Forge Tools at once: hp-in-bar. This module has no functionality of its own — it exists so you only have to paste one manifest URL. You can safely disable it afterwards; the modules it pulled in stay installed.",
+  "authors": [
+    {
+      "name": "Zeralius"
+    }
+  ],
+  "version": "1.0.0",
+  "compatibility": {
+    "minimum": "13",
+    "verified": "14"
+  },
+  "relationships": {
+    "requires": [
+      {
+        "id": "hp-in-bar",
+        "type": "module",
+        "manifest": "https://raw.githubusercontent.com/Zeralius/Zeras-vtt-forge-tools/main/modules/hp-in-bar/module.json",
+        "compatibility": {
+          "minimum": "1.0.6"
+        }
+      }
+    ]
+  },
+  "url": "https://github.com/Zeralius/Zeras-vtt-forge-tools",
+  "manifest": "https://raw.githubusercontent.com/Zeralius/Zeras-vtt-forge-tools/main/modules/zeras-forge-tools/module.json",
+  "download": "https://github.com/Zeralius/Zeras-vtt-forge-tools/releases/download/zeras-forge-tools-v1.0.0/zeras-forge-tools.zip"
+}

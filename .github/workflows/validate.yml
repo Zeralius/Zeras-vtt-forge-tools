@@ -1,0 +1,25 @@
+name: Validate manifests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Validate every module manifest
+        run: node scripts/validate.mjs
+
+      - name: Check the bundle lists every module
+        run: node scripts/bundle.mjs --check
+
+      - name: Build every module (catches packaging errors before release day)
+        run: node scripts/pack.mjs

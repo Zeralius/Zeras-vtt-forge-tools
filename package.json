@@ -1,0 +1,15 @@
+{
+  "name": "zeras-vtt-forge-tools",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Build and release tooling for Zera's VTT Forge Tools, a collection of Foundry VTT modules.",
+  "type": "module",
+  "scripts": {
+    "validate": "node scripts/validate.mjs",
+    "release": "node scripts/release.mjs",
+    "new-module": "node scripts/new-module.mjs",
+    "pack": "node scripts/pack.mjs",
+    "bundle": "node scripts/bundle.mjs"
+  },
+  "engines": { "node": ">=20" }
+}

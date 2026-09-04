@@ -1,0 +1,16 @@
+# Local idea scratchpad (personal, not published)
+ideas.md
+
+# Build output
+dist/
+*.zip
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
