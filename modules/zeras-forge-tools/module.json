@@ -7,7 +7,7 @@
       "name": "Zeralius"
     }
   ],
-  "version": "1.0.0",
+  "version": "1.0.1",
   "compatibility": {
     "minimum": "13",
     "verified": "14"
@@ -26,5 +26,5 @@
   },
   "url": "https://github.com/Zeralius/Zeras-vtt-forge-tools",
   "manifest": "https://raw.githubusercontent.com/Zeralius/Zeras-vtt-forge-tools/main/modules/zeras-forge-tools/module.json",
-  "download": "https://github.com/Zeralius/Zeras-vtt-forge-tools/releases/download/zeras-forge-tools-v1.0.0/zeras-forge-tools.zip"
+  "download": "https://github.com/Zeralius/Zeras-vtt-forge-tools/releases/download/zeras-forge-tools-v1.0.1/zeras-forge-tools.zip"
 }
