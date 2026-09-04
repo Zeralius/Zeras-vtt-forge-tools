@@ -91,7 +91,9 @@ Add `--dry-run` to see what it would do without touching anything.
 The script bumps the version, rewrites the manifest's URLs, refreshes the bundle, commits, tags
 and pushes. Pushing the tag is what kicks off
 [the release workflow](.github/workflows/release.yml), which re-checks everything, builds the zip
-and publishes a GitHub release with `<id>.zip` and `module.json` attached.
+and publishes a GitHub release with `<id>.zip` and `<id>.module.json` attached. The loose
+manifest is just a convenience for reading the version without downloading the zip; nothing
+points at it.
 
 If you'd rather not do it locally: **Actions → Release module → Run workflow**, pick the module
 and the bump, and it does the whole thing on GitHub.
