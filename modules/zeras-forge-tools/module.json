@@ -19,7 +19,7 @@
         "type": "module",
         "manifest": "https://raw.githubusercontent.com/Zeralius/Zeras-vtt-forge-tools/main/modules/hp-in-bar/module.json",
         "compatibility": {
-          "minimum": "1.0.6"
+          "minimum": "1.0.7"
         }
       }
     ]
