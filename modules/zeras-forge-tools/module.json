@@ -1,7 +1,7 @@
 {
   "id": "zeras-forge-tools",
   "title": "Zera's VTT Forge Tools",
-  "description": "Installs every module in Zera's VTT Forge Tools at once: hp-in-bar. This module has no functionality of its own — it exists so you only have to paste one manifest URL. You can safely disable it afterwards; the modules it pulled in stay installed.",
+  "description": "Installs every module in Zera's VTT Forge Tools at once: flipside, hp-in-bar, meows-kit. This module has no functionality of its own — it exists so you only have to paste one manifest URL. You can safely disable it afterwards; the modules it pulled in stay installed.",
   "authors": [
     {
       "name": "Zeralius"
@@ -15,11 +15,27 @@
   "relationships": {
     "requires": [
       {
+        "id": "flipside",
+        "type": "module",
+        "manifest": "https://raw.githubusercontent.com/Zeralius/Zeras-vtt-forge-tools/main/modules/flipside/module.json",
+        "compatibility": {
+          "minimum": "0.1.0"
+        }
+      },
+      {
         "id": "hp-in-bar",
         "type": "module",
         "manifest": "https://raw.githubusercontent.com/Zeralius/Zeras-vtt-forge-tools/main/modules/hp-in-bar/module.json",
         "compatibility": {
           "minimum": "1.0.7"
+        }
+      },
+      {
+        "id": "meows-kit",
+        "type": "module",
+        "manifest": "https://raw.githubusercontent.com/Zeralius/Zeras-vtt-forge-tools/main/modules/meows-kit/module.json",
+        "compatibility": {
+          "minimum": "0.1.0"
         }
       }
     ]

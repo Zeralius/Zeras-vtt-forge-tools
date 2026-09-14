@@ -11,11 +11,23 @@ with a specific system say so.
 
 | Module | Id | System | Version |
 | --- | --- | --- | --- |
-| [HP in Bar](modules/hp-in-bar) | `hp-in-bar` | D&D 5e | 1.0.6 |
+| [HP in Bar](modules/hp-in-bar) | `hp-in-bar` | D&D 5e | 1.0.7 |
+| [Flipside](modules/flipside) | `flipside` | Any | 0.1.0 |
+| [Meows Kit](modules/meows-kit) | `meows-kit` | Any | 0.1.0 |
 
 **HP in Bar** puts the actual numbers inside the token's health bar, so you can read `45 / 50`
 straight off the canvas instead of opening a sheet or hovering. Font size, colour and outline are
 per-player settings.
+
+**Flipside** gives a token a list of images and flips between them with a keypress, squashing
+edge-on like a coin and swapping at the halfway point. Built for wildshape, useful for anything
+that changes its look. Purely cosmetic — it never touches stats.
+
+**Meows Kit** imports a one-shot kit written by [Meows](https://github.com/Zeralius/Meows): a
+folder with a `kit.json` and the pictures, uploaded through Foundry's file picker, becomes a
+Folder of Scenes (one per map, gridded or gridless as the kit says), a Folder of journal entries
+for the handouts and notes, and a Folder of actors for the tokens. Five maps in, five scenes out,
+in order.
 
 ---
 
@@ -49,6 +61,8 @@ Each module has its own manifest URL:
 | Module | Manifest URL |
 | --- | --- |
 | HP in Bar | `https://raw.githubusercontent.com/Zeralius/Zeras-vtt-forge-tools/main/modules/hp-in-bar/module.json` |
+| Flipside | `https://raw.githubusercontent.com/Zeralius/Zeras-vtt-forge-tools/main/modules/flipside/module.json` |
+| Meows Kit | `https://raw.githubusercontent.com/Zeralius/Zeras-vtt-forge-tools/main/modules/meows-kit/module.json` |
 
 Or grab a zip from the [releases page](https://github.com/Zeralius/Zeras-vtt-forge-tools/releases)
 and drop the extracted folder into `Data/modules/`.

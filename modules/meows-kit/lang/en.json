@@ -1,0 +1,12 @@
+{
+  "MEOWSKIT.Import": "Import a kit",
+  "MEOWSKIT.ImportLabel": "Import a kit",
+  "MEOWSKIT.ImportHint": "Pick the folder Meows wrote (it has a kit.json in it). One scene per map, gridded or gridless, handouts and notes as journal entries, tokens as actors, all in a folder named after the kit.",
+  "MEOWSKIT.MakeActors": "Make an actor per token",
+  "MEOWSKIT.MakeActorsHint": "Each token in the kit becomes an actor of the system's monster type with the token as its picture. Off leaves the tokens as pictures in the folder.",
+  "MEOWSKIT.NoManifest": "No kit.json in {folder} ({error}). Point at the folder Meows wrote.",
+  "MEOWSKIT.WrongVersion": "This kit is version {found}; this module reads version {wanted}. Update one or the other.",
+  "MEOWSKIT.SceneFailed": "Could not make the scene {name}: {error}",
+  "MEOWSKIT.NoActorType": "This system has no actor type to make, so the tokens stayed as pictures.",
+  "MEOWSKIT.Done": "{title}: {scenes} scenes, {journals} journal entries, {actors} actors, in folders named after the kit."
+}

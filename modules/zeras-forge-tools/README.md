@@ -2,7 +2,9 @@
 
 Install this and Foundry will offer to install every module in the collection along with it:
 
+- `flipside`
 - `hp-in-bar`
+- `meows-kit`
 
 It has no code of its own. Once the others are installed you can disable or uninstall this one
 and they'll keep working.

@@ -1,0 +1,12 @@
+{
+  "MEOWSKIT.Import": "Ein Kit importieren",
+  "MEOWSKIT.ImportLabel": "Kit importieren",
+  "MEOWSKIT.ImportHint": "Den Ordner wählen, den Meows geschrieben hat (mit einer kit.json darin). Eine Szene pro Karte, mit oder ohne Raster, Handouts und Notizen als Journaleinträge, Tokens als Akteure, alles in einem Ordner mit dem Namen des Kits.",
+  "MEOWSKIT.MakeActors": "Pro Token einen Akteur anlegen",
+  "MEOWSKIT.MakeActorsHint": "Jedes Token im Kit wird ein Akteur vom Monster-Typ des Systems mit dem Token als Bild. Aus lässt die Tokens als Bilder im Ordner.",
+  "MEOWSKIT.NoManifest": "Keine kit.json in {folder} ({error}). Den Ordner wählen, den Meows geschrieben hat.",
+  "MEOWSKIT.WrongVersion": "Dieses Kit hat Version {found}; dieses Modul liest Version {wanted}. Eins von beiden aktualisieren.",
+  "MEOWSKIT.SceneFailed": "Die Szene {name} ließ sich nicht anlegen: {error}",
+  "MEOWSKIT.NoActorType": "Dieses System hat keinen Akteur-Typ, also blieben die Tokens Bilder.",
+  "MEOWSKIT.Done": "{title}: {scenes} Szenen, {journals} Journaleinträge, {actors} Akteure, in Ordnern mit dem Namen des Kits."
+}
