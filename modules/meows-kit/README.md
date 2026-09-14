@@ -10,7 +10,7 @@ type to make.
 
 ## How it works
 
-Meows' Kit tab does the part that needs a desktop: maps fitted and framed, tokens cut round with
+Meows' Familiar tab (Kit until Meows 2.22.0) does the part that needs a desktop: maps fitted and framed, tokens cut round with
 a ring, the grid measured against the map's own lines or deliberately switched off. *Write for
 Foundry* leaves a folder with the pictures and a `kit.json` holding the numbers. This module does
 the part that needs Foundry.
