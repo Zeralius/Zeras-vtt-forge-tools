@@ -13,7 +13,7 @@ with a specific system say so.
 | --- | --- | --- | --- |
 | [HP in Bar](modules/hp-in-bar) | `hp-in-bar` | D&D 5e | 1.0.7 |
 | [Flipside](modules/flipside) | `flipside` | Any | 0.1.0 |
-| [Meows Kit](modules/meows-kit) | `meows-kit` | Any | 0.1.0 |
+| [Meows Kit](modules/meows-kit) | `meows-kit` | Any | 0.2.0 |
 
 **HP in Bar** puts the actual numbers inside the token's health bar, so you can read `45 / 50`
 straight off the canvas instead of opening a sheet or hovering. Font size, colour and outline are

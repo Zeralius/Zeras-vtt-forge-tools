@@ -4,7 +4,9 @@
 // has already done the work that needs a desktop: the maps are fitted and framed, the tokens cut
 // round, the grid worked out or deliberately switched off. This module does the part that needs
 // Foundry: a Folder named after the kit, one Scene per map, one JournalEntry per handout and per
-// note, one Actor per token. Five maps in the kit, five scenes in the folder, in order.
+// note, one Actor per token, and the run sheet as a journal entry per scene with the fights on
+// it, the tokens placed hidden on the map. Five maps in the kit, five scenes in the folder, in
+// order.
 //
 // Nothing here talks to Meows. The folder is the whole interface, which is why it is a kit.json
 // and not a socket: it can be uploaded through Foundry's own file picker, dropped on the server
@@ -24,6 +26,14 @@ Hooks.once('init', () => {
     game.settings.register(MODULE_ID, 'makeActors', {
         name: 'MEOWSKIT.MakeActors',
         hint: 'MEOWSKIT.MakeActorsHint',
+        scope: 'world',
+        config: true,
+        type: Boolean,
+        default: true
+    });
+    game.settings.register(MODULE_ID, 'placeTokens', {
+        name: 'MEOWSKIT.PlaceTokens',
+        hint: 'MEOWSKIT.PlaceTokensHint',
         scope: 'world',
         config: true,
         type: Boolean,
@@ -99,7 +109,9 @@ export async function importKit(folder) {
     }
 
     const title = kit.title || base.split('/').pop();
-    const made = { scenes: 0, journals: 0, actors: 0 };
+    const made = { scenes: 0, journals: 0, actors: 0, tokens: 0 };
+    const scenes = new Map();   // map file -> Scene
+    const actors = new Map();   // token file -> Actor
 
     // One folder per document type, all named after the kit, since Foundry folders are per type.
     const sceneFolder = kit.scenes?.length ? await Folder.create({ name: title, type: 'Scene', color: '#6b4e2a' }) : null;
@@ -129,7 +141,8 @@ export async function importKit(folder) {
         };
         if (map.caption) data.flags = { [MODULE_ID]: { caption: map.caption } };
         try {
-            await Scene.create(data);
+            const scene = await Scene.create(data);
+            scenes.set(map.file, scene);
             made.scenes++;
         } catch (error) {
             console.error(`${MODULE_ID} | scene ${map.name}`, error);
@@ -137,7 +150,7 @@ export async function importKit(folder) {
         }
     }
 
-    const journalItems = (kit.handouts?.length ?? 0) + (kit.notes?.length ?? 0);
+    const journalItems = (kit.handouts?.length ?? 0) + (kit.notes?.length ?? 0) + (kit.encounters?.length ?? 0);
     const journalFolder = journalItems ? await Folder.create({ name: title, type: 'JournalEntry', color: '#6b4e2a' }) : null;
 
     for (const handout of kit.handouts ?? []) {
@@ -182,7 +195,7 @@ export async function importKit(folder) {
             for (const token of kit.tokens) {
                 try {
                     const src = `${base}/${token.file}`;
-                    await Actor.create({
+                    const actor = await Actor.create({
                         name: token.name,
                         type,
                         folder: actorFolder.id,
@@ -193,6 +206,7 @@ export async function importKit(folder) {
                             disposition: dispositionOf(token.side)
                         }
                     });
+                    actors.set(token.file, actor);
                     made.actors++;
                 } catch (error) {
                     console.error(`${MODULE_ID} | token ${token.name}`, error);
@@ -203,9 +217,87 @@ export async function importKit(folder) {
         }
     }
 
+    // The run sheet: one journal entry per scene that has fights on it, a page per fight,
+    // linked from the scene so the notes button on the scene opens it; fights on no map go in
+    // an entry named after the kit. The tokens are placed hidden in a row at the top-left, so
+    // the GM drags them where they go and reveals them when the fight starts.
+    if (kit.encounters?.length) {
+        const bySceneFile = new Map();
+        for (const encounter of kit.encounters) {
+            const key = scenes.has(encounter.map) ? encounter.map : '';
+            if (!bySceneFile.has(key)) bySceneFile.set(key, []);
+            bySceneFile.get(key).push(encounter);
+        }
+        const tokenByFile = new Map((kit.tokens ?? []).map(t => [t.file, t]));
+
+        for (const [file, fights] of bySceneFile) {
+            const scene = file ? scenes.get(file) : null;
+            const name = scene ? game.i18n.format('MEOWSKIT.RunSheetFor', { scene: scene.name }) : game.i18n.format('MEOWSKIT.RunSheet', { title });
+            const pages = fights.map(f => ({
+                name: f.name || game.i18n.localize('MEOWSKIT.UnnamedFight'),
+                type: 'text',
+                text: { content: runSheetPage(f, scene), format: CONST.JOURNAL_ENTRY_PAGE_FORMATS.MARKDOWN }
+            }));
+            try {
+                const entry = await JournalEntry.create({ name, folder: journalFolder?.id, pages });
+                made.journals++;
+                if (scene) await scene.update({ journal: entry.id });
+            } catch (error) {
+                console.error(`${MODULE_ID} | run sheet ${name}`, error);
+            }
+
+            if (!scene || !game.settings.get(MODULE_ID, 'placeTokens')) continue;
+            const placed = [];
+            const step = scene.grid.size;
+            let column = 0;
+            for (const fight of fights) {
+                for (const group of fight.groups ?? []) {
+                    const token = tokenByFile.get(group.token);
+                    for (let i = 0; i < (group.count || 1); i++) {
+                        const x = step + column * step;
+                        const y = step;
+                        column++;
+                        const actor = actors.get(group.token);
+                        if (actor) {
+                            const doc = await actor.getTokenDocument({ x, y, hidden: true });
+                            placed.push(doc.toObject());
+                        } else {
+                            placed.push({
+                                name: group.name,
+                                x, y, hidden: true,
+                                texture: { src: `${base}/${group.token}` },
+                                disposition: dispositionOf(token?.side)
+                            });
+                        }
+                    }
+                }
+            }
+            if (placed.length) {
+                try {
+                    await scene.createEmbeddedDocuments('Token', placed);
+                    made.tokens += placed.length;
+                } catch (error) {
+                    console.error(`${MODULE_ID} | tokens on ${scene.name}`, error);
+                    ui.notifications.warn(game.i18n.format('MEOWSKIT.TokensFailed', { name: scene.name, error: error.message }));
+                }
+            }
+        }
+    }
+
     ui.notifications.info(game.i18n.format('MEOWSKIT.Done', { title, ...made }));
     console.log(`${MODULE_ID} | imported "${title}" from ${base}:`, made);
     return made;
+}
+
+/** One fight as a markdown page: where, who, and what the GM wrote. */
+function runSheetPage(fight, scene) {
+    const lines = [];
+    if (scene) lines.push(`**${game.i18n.localize('MEOWSKIT.OnTheMap')}** ${scene.name}`, '');
+    for (const group of fight.groups ?? []) lines.push(`- ${group.count > 1 ? `${group.count} × ` : ''}**${group.name}**`);
+    for (const line of fight.lines ?? []) lines.push(`- ${line}`);
+    if ((fight.groups?.length || fight.lines?.length) && fight.notes) lines.push('');
+    if (fight.notes) lines.push(fight.notes.trim());
+    return lines.join('\n');
 }
 
 /** A system's first actor type that is not a base type, or null when the system has none. */

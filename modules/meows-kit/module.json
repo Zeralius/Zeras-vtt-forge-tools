@@ -1,13 +1,13 @@
 {
   "id": "meows-kit",
   "title": "Meows Kit",
-  "description": "Imports a one-shot kit written by Meows: one scene per map, gridded or gridless, handouts as journal entries, tokens as actors, in a folder named after the kit.",
+  "description": "Imports a one-shot kit written by Meows: one scene per map, gridded or gridless, handouts as journal entries, tokens as actors, the run sheet as a journal page per scene with its tokens placed, in a folder named after the kit.",
   "authors": [
     {
       "name": "Zeralius"
     }
   ],
-  "version": "0.1.0",
+  "version": "0.2.0",
   "compatibility": {
     "minimum": "13",
     "verified": "14"
@@ -29,5 +29,5 @@
   ],
   "url": "https://github.com/Zeralius/Zeras-vtt-forge-tools",
   "manifest": "https://raw.githubusercontent.com/Zeralius/Zeras-vtt-forge-tools/main/modules/meows-kit/module.json",
-  "download": "https://github.com/Zeralius/Zeras-vtt-forge-tools/releases/download/meows-kit-v0.1.0/meows-kit.zip"
+  "download": "https://github.com/Zeralius/Zeras-vtt-forge-tools/releases/download/meows-kit-v0.2.0/meows-kit.zip"
 }

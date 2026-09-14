@@ -1,12 +1,19 @@
 {
   "MEOWSKIT.Import": "Import a kit",
   "MEOWSKIT.ImportLabel": "Import a kit",
-  "MEOWSKIT.ImportHint": "Pick the folder Meows wrote (it has a kit.json in it). One scene per map, gridded or gridless, handouts and notes as journal entries, tokens as actors, all in a folder named after the kit.",
+  "MEOWSKIT.ImportHint": "Pick the folder Meows wrote (it has a kit.json in it). One scene per map, gridded or gridless, handouts and notes as journal entries, tokens as actors, the run sheet as a journal entry per scene with its tokens placed hidden, all in a folder named after the kit.",
   "MEOWSKIT.MakeActors": "Make an actor per token",
   "MEOWSKIT.MakeActorsHint": "Each token in the kit becomes an actor of the system's monster type with the token as its picture. Off leaves the tokens as pictures in the folder.",
   "MEOWSKIT.NoManifest": "No kit.json in {folder} ({error}). Point at the folder Meows wrote.",
   "MEOWSKIT.WrongVersion": "This kit is version {found}; this module reads version {wanted}. Update one or the other.",
   "MEOWSKIT.SceneFailed": "Could not make the scene {name}: {error}",
   "MEOWSKIT.NoActorType": "This system has no actor type to make, so the tokens stayed as pictures.",
-  "MEOWSKIT.Done": "{title}: {scenes} scenes, {journals} journal entries, {actors} actors, in folders named after the kit."
+  "MEOWSKIT.Done": "{title}: {scenes} scenes, {journals} journal entries, {actors} actors, {tokens} tokens placed, in folders named after the kit.",
+  "MEOWSKIT.PlaceTokens": "Place the run sheet's tokens",
+  "MEOWSKIT.PlaceTokensHint": "Each fight's tokens are put on its scene, hidden, in a row at the top-left, ready to be dragged into place. Off leaves the fights as journal pages only.",
+  "MEOWSKIT.RunSheetFor": "{scene} — run sheet",
+  "MEOWSKIT.RunSheet": "{title} — run sheet",
+  "MEOWSKIT.UnnamedFight": "Fight",
+  "MEOWSKIT.OnTheMap": "On the map:",
+  "MEOWSKIT.TokensFailed": "Could not place the tokens on {name}: {error}"
 }

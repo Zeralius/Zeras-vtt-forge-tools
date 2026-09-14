@@ -1,8 +1,9 @@
 # Meows Kit
 
 Imports a one-shot kit written by [Meows](https://github.com/Zeralius/Meows): one scene per map,
-gridded or gridless, handouts and notes as journal entries, tokens as actors, all in folders named
-after the kit. Five maps in the kit, five scenes in the folder, in order.
+gridded or gridless, handouts and notes as journal entries, tokens as actors, the run sheet as a
+journal entry per scene with its tokens placed, all in folders named after the kit. Five maps in
+the kit, five scenes in the folder, in order.
 
 Requires Foundry VTT v13 or newer. Any system: an actor is only made when the system has an actor
 type to make.
@@ -22,6 +23,11 @@ the part that needs Foundry.
    size and the grid the kit says (or no grid, when the kit says so, which is a choice and not a
    missing number), a Folder in Journal with one entry per handout and per note, and, unless
    turned off, a Folder in Actors with one actor per token carrying its picture and disposition.
+4. The kit's run sheet, when it has one: one journal entry per scene with a page per fight (who
+   is in it, the GM's notes), linked from the scene so its notes button opens it, and each
+   fight's tokens placed on the scene hidden, in a row at the top-left, ready to be dragged
+   where they go and revealed when the fight starts. Fights on no map go in an entry named
+   after the kit. Placing can be turned off in the settings.
 
 There is no way to write into a running Foundry from outside, and writing its database while it
 runs corrupts the world. That is why the interface is a folder: it can be uploaded through the
