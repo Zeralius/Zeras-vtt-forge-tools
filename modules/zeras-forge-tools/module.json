@@ -35,7 +35,7 @@
         "type": "module",
         "manifest": "https://raw.githubusercontent.com/Zeralius/Zeras-vtt-forge-tools/main/modules/meows-kit/module.json",
         "compatibility": {
-          "minimum": "0.1.0"
+          "minimum": "0.2.0"
         }
       }
     ]
