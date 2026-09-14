@@ -1,0 +1,21 @@
+{
+  "id": "flipside",
+  "title": "Flipside",
+  "description": "Flip a token between several images with a hotkey and a coin-flip animation. Purely cosmetic.",
+  "authors": [
+    {
+      "name": "Zeralius"
+    }
+  ],
+  "version": "0.1.0",
+  "compatibility": {
+    "minimum": "13",
+    "verified": "14"
+  },
+  "esmodules": [
+    "scripts/flipside.js"
+  ],
+  "url": "https://github.com/Zeralius/Zeras-vtt-forge-tools",
+  "manifest": "https://raw.githubusercontent.com/Zeralius/Zeras-vtt-forge-tools/main/modules/flipside/module.json",
+  "download": "https://github.com/Zeralius/Zeras-vtt-forge-tools/releases/download/flipside-v0.1.0/flipside.zip"
+}
