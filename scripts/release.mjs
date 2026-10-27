@@ -6,10 +6,12 @@
 //   npm run release -- hp-in-bar patch
 //   npm run release -- hp-in-bar 1.2.0
 //   npm run release -- hp-in-bar minor --dry-run
+import fs from 'node:fs';
+import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import {
-    REPO_ROOT, listModuleIds, readManifest, writeManifest,
+    REPO_ROOT, listModuleIds, moduleDir, readManifest, writeManifest, stampChangelog,
     manifestUrl, downloadUrl, projectUrl, releaseTag, bumpVersion, isSemver, BUNDLE_ID
 } from './lib/modules.mjs';
 
@@ -64,6 +66,17 @@ if (dryRun) {
 }
 
 writeManifest(id, manifest);
+
+// Whatever piled up under `## Unreleased` is what this version ships, so it takes the version's
+// name and ends up in the release notes.
+const changelog = path.join(moduleDir(id), 'CHANGELOG.md');
+if (fs.existsSync(changelog)) {
+    const stamped = stampChangelog(fs.readFileSync(changelog, 'utf8'), nextVersion);
+    if (stamped) {
+        fs.writeFileSync(changelog, stamped, 'utf8');
+        console.log(`  changelog "Unreleased" -> ${nextVersion}`);
+    }
+}
 
 // The bundle pins a minimum version per module, so it goes stale the moment we bump one.
 // Regenerate it here and let it ride along in the same commit.

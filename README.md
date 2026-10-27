@@ -75,11 +75,20 @@ You need Node 20+. Nothing to install, the scripts only use what ships with Node
 
 ```bash
 npm run validate     # check every module.json: ids, versions, URLs, files it references
+npm test             # test the modules' own logic and the release scripts
 npm run bundle       # rebuild the bundle module after adding or removing a module
 npm run pack         # build dist/<id>.zip for every module
 ```
 
 `npm run pack -- hp-in-bar` builds just the one.
+
+The tests in `tests/` load each module's script in Node with a thin stand-in for Foundry's
+globals and check the functions it exports: layouts, grid fitting, which face comes next, who
+sees which numbers. They also check that every translation key a script uses is in every
+language file. They can't see the canvas, so anything drawn still needs a look in Foundry.
+
+Write what changed under `## Unreleased` in the module's `CHANGELOG.md`. The release script
+renames that heading to the version it releases, and the release notes are taken from it.
 
 ### Adding a module
 

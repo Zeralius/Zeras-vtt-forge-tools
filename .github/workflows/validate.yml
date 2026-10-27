@@ -18,6 +18,9 @@ jobs:
       - name: Validate every module manifest
         run: node scripts/validate.mjs
 
+      - name: Test what the modules and scripts work out
+        run: node --test
+
       - name: Check the bundle lists every module
         run: node scripts/bundle.mjs --check
 

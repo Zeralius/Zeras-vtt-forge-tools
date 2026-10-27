@@ -44,10 +44,15 @@ jobs:
 
       - name: Bump, commit and tag
         if: github.event_name == 'workflow_dispatch'
+        # The inputs go through the environment rather than straight into the script, so what
+        # someone types as a module id can never run as shell.
+        env:
+          MODULE_INPUT: ${{ inputs.module }}
+          BUMP_INPUT: ${{ inputs.bump }}
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          node scripts/release.mjs "${{ inputs.module }}" "${{ inputs.bump }}"
+          node scripts/release.mjs "$MODULE_INPUT" "$BUMP_INPUT"
 
       - name: Resolve release target
         id: target
@@ -69,10 +74,15 @@ jobs:
             echo "module_id=${MODULE_ID}"
             echo "version=${VERSION}"
             echo "title=$(node -p "require('./modules/${MODULE_ID}/module.json').title")"
+            # This module's previous release, so the generated notes list only its own commits.
+            echo "previous=$(git tag --list "${MODULE_ID}-v*" --sort=-v:refname | grep -vx "${TAG}" | head -n 1 || true)"
           } >> "$GITHUB_OUTPUT"
 
       - name: Validate manifests
         run: node scripts/validate.mjs
+
+      - name: Test what the modules and scripts work out
+        run: node --test
 
       - name: Check the bundle lists every module
         run: node scripts/bundle.mjs --check
@@ -100,6 +110,12 @@ jobs:
           TAG="${{ steps.target.outputs.tag }}"
           MODULE_ID="${{ steps.target.outputs.module_id }}"
           TITLE="${{ steps.target.outputs.title }} ${{ steps.target.outputs.version }}"
+          PREVIOUS="${{ steps.target.outputs.previous }}"
+
+          # The generated commit list starts at this module's last release. Left to itself, gh
+          # starts at whichever tag came last in the repo and lists every other module's commits.
+          GENERATE=()
+          if [ -n "$PREVIOUS" ]; then GENERATE=(--generate-notes --notes-start-tag "$PREVIOUS"); fi
 
           # Moving a tag re-runs this workflow, and so does re-running it by hand, so publishing
           # has to cope with the release already being there instead of failing on the second go.
@@ -114,7 +130,7 @@ jobs:
             gh release create "$TAG" \
               --title "$TITLE" \
               --notes-file notes.md \
-              --generate-notes \
+              "${GENERATE[@]}" \
               --verify-tag \
               "dist/${MODULE_ID}.zip" \
               "dist/${MODULE_ID}.module.json"

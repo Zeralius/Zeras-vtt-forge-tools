@@ -68,6 +68,26 @@ export function writeManifest(id, manifest) {
     fs.writeFileSync(manifestPath(id), `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
 }
 
+// Everything under the `## <version>` heading until the next one at the same level. The heading
+// has to name exactly that version, so 1.0.1 does not pick up the notes for 1.0.10.
+export function changelogSection(text, version) {
+    const lines = text.split(/\r?\n/);
+    const escaped = version.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const heading = new RegExp(`^##\\s+\\[?v?${escaped}\\]?(\\s|$)`);
+    const start = lines.findIndex(line => heading.test(line));
+    if (start === -1) return '';
+    const rest = lines.slice(start + 1);
+    const end = rest.findIndex(line => /^##\s/.test(line));
+    return (end === -1 ? rest : rest.slice(0, end)).join('\n').trim();
+}
+
+// Renames the changelog's `## Unreleased` heading to `## <version>`. Returns the new text, or null
+// when there is no such heading.
+export function stampChangelog(text, version) {
+    const stamped = text.replace(/^##\s+Unreleased[ \t]*$/im, `## ${version}`);
+    return stamped === text ? null : stamped;
+}
+
 export function isSemver(version) {
     return /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(version);
 }

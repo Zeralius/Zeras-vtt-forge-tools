@@ -6,10 +6,13 @@
   "type": "module",
   "scripts": {
     "validate": "node scripts/validate.mjs",
+    "test": "node --test",
     "release": "node scripts/release.mjs",
     "new-module": "node scripts/new-module.mjs",
     "pack": "node scripts/pack.mjs",
     "bundle": "node scripts/bundle.mjs"
   },
-  "engines": { "node": ">=20" }
+  "engines": {
+    "node": ">=20"
+  }
 }

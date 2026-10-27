@@ -62,6 +62,18 @@ for (const id of ids) {
         }
     }
 
+    // A language file that isn't valid JSON makes Foundry drop every string in it, and the
+    // settings show their raw keys.
+    for (const language of manifest.languages ?? []) {
+        const file = path.join(moduleDir(id), language.path ?? '');
+        if (!language.path || !fs.existsSync(file)) continue;
+        try {
+            JSON.parse(fs.readFileSync(file, 'utf8'));
+        } catch (err) {
+            fail(id, `languages: ${language.path} is not valid JSON — ${err.message}`);
+        }
+    }
+
     if (!fs.existsSync(path.join(moduleDir(id), 'README.md'))) {
         console.warn(`  note  ${id}: no README.md in the module folder (optional, but it ends up in the zip)`);
     }
