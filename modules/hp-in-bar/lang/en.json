@@ -1,0 +1,15 @@
+{
+  "HPINBAR.VisibleTo": "Who Sees the Numbers",
+  "HPINBAR.VisibleToHint": "Who reads the exact HP on a token's bar. Anyone who can see the bar still sees the bar itself.",
+  "HPINBAR.VisibleToOwner": "The token's owners and the GM",
+  "HPINBAR.VisibleToEveryone": "Everyone who can see the bar",
+  "HPINBAR.VisibleToGM": "The GM only",
+  "HPINBAR.FontSize": "HP Font Size",
+  "HPINBAR.FontSizeHint": "Font size for the HP text inside the token health bar.",
+  "HPINBAR.TextColor": "HP Text Color",
+  "HPINBAR.TextColorHint": "Colour of the HP text.",
+  "HPINBAR.StrokeColor": "HP Stroke/Outline Color",
+  "HPINBAR.StrokeColorHint": "Outline colour for readability against the bar background.",
+  "HPINBAR.StrokeWidth": "HP Stroke Width",
+  "HPINBAR.StrokeWidthHint": "Thickness of the text outline in pixels."
+}

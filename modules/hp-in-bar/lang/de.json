@@ -1,0 +1,15 @@
+{
+  "HPINBAR.VisibleTo": "Wer die Zahlen sieht",
+  "HPINBAR.VisibleToHint": "Wer die genauen TP auf dem Balken eines Tokens liest. Den Balken selbst sieht weiterhin jeder, der ihn sehen darf.",
+  "HPINBAR.VisibleToOwner": "Die Besitzer des Tokens und die Spielleitung",
+  "HPINBAR.VisibleToEveryone": "Alle, die den Balken sehen",
+  "HPINBAR.VisibleToGM": "Nur die Spielleitung",
+  "HPINBAR.FontSize": "TP-Schriftgröße",
+  "HPINBAR.FontSizeHint": "Schriftgröße der TP im Lebensbalken des Tokens.",
+  "HPINBAR.TextColor": "TP-Textfarbe",
+  "HPINBAR.TextColorHint": "Farbe der TP-Zahlen.",
+  "HPINBAR.StrokeColor": "TP-Konturfarbe",
+  "HPINBAR.StrokeColorHint": "Farbe der Kontur, damit die Zahlen auf dem Balken lesbar bleiben.",
+  "HPINBAR.StrokeWidth": "TP-Konturstärke",
+  "HPINBAR.StrokeWidthHint": "Dicke der Kontur in Pixeln."
+}

@@ -1,27 +1,47 @@
 const MODULE_ID = 'hp-in-bar';
 
-// Settings 
+// The dnd5e attribute the numbers belong to. Any other bar keeps Foundry's plain look.
+const HP_ATTRIBUTE = 'attributes.hp';
+
+// One text style shared by every token, rebuilt only when a setting changes.
+let style = null;
+
+// Settings
 Hooks.once('init', () => {
+    const { ColorField } = foundry.data.fields;
+
+    game.settings.register(MODULE_ID, 'visibleTo', {
+        name: 'HPINBAR.VisibleTo',
+        hint: 'HPINBAR.VisibleToHint',
+        scope: 'world', config: true, onChange: redrawAll, type: String, default: 'owner',
+        choices: {
+            owner: 'HPINBAR.VisibleToOwner',
+            everyone: 'HPINBAR.VisibleToEveryone',
+            gm: 'HPINBAR.VisibleToGM'
+        }
+    });
     game.settings.register(MODULE_ID, 'fontSize', {
-        name: 'HP Font Size',
-        hint: 'Font size for the HP text inside the token health bar.',
-        scope: 'client', config: true, type: Number, default: 16,
+        name: 'HPINBAR.FontSize',
+        hint: 'HPINBAR.FontSizeHint',
+        scope: 'client', config: true, onChange: redrawAll, type: Number, default: 16,
         range: { min: 8, max: 48, step: 1 }
     });
     game.settings.register(MODULE_ID, 'textColor', {
-        name: 'HP Text Color',
-        hint: 'Colour of the HP text.',
-        scope: 'client', config: true, type: String, default: '#FFFFFF'
+        name: 'HPINBAR.TextColor',
+        hint: 'HPINBAR.TextColorHint',
+        scope: 'client', config: true, onChange: redrawAll,
+        type: new ColorField({ nullable: false, initial: '#ffffff' }), default: '#ffffff'
     });
     game.settings.register(MODULE_ID, 'strokeColor', {
-        name: 'HP Stroke/Outline Color',
-        hint: 'Outline colour for readability against the bar background.',
-        scope: 'client', config: true, type: String, default: '#000000'
+        name: 'HPINBAR.StrokeColor',
+        hint: 'HPINBAR.StrokeColorHint',
+        scope: 'client', config: true, onChange: redrawAll,
+        type: new ColorField({ nullable: false, initial: '#000000' }), default: '#000000'
     });
     game.settings.register(MODULE_ID, 'strokeWidth', {
-        name: 'HP Stroke Width',
-        hint: 'Thickness of the text outline in pixels.',
-        scope: 'client', config: true, type: Number, default: 4,
+        name: 'HPINBAR.StrokeWidth',
+        hint: 'HPINBAR.StrokeWidthHint',
+        scope: 'client', config: true, onChange: redrawAll, type: Number, default: 4,
         range: { min: 0, max: 12, step: 1 }
     });
 });
@@ -35,21 +55,15 @@ function drawBarsWrapper(wrapped, ...args) {
     try {
         // If token are not visible or have no bars -> skip
         if (!this.actor || this.document.displayBars === CONST.TOKEN_DISPLAY_MODES.NONE) return result;
+        const allowed = canSeeNumbers(this);
 
         // Foundry interates over bar1 & bar2
         ["bar1", "bar2"].forEach((b) => {
             const bar = this.bars[b];
             const attr = this.document.getBarAttribute(b);
 
-            // if invalid || invisible || null -> disable text
-            if (!attr || attr.type !== "bar" || attr.max === 0 || !bar.visible) {
-                if (bar._hpText) bar._hpText.visible = false;
-                return;
-            }
-
-            // checks if attr tracks hitpoints
-            const isHP = attr.attribute && (attr.attribute.toLowerCase().includes('hp') || attr.attribute.toLowerCase().includes('health'));
-            if (!isHP) {
+            // not HP || invisible || not for this user -> disable text
+            if (!allowed || !isHPBar(attr) || !bar.visible) {
                 if (bar._hpText) bar._hpText.visible = false;
                 return;
             }
@@ -58,29 +72,27 @@ function drawBarsWrapper(wrapped, ...args) {
 
             // adds text as child of graph-bar
             if (!bar._hpText || bar._hpText.destroyed) {
-                bar._hpText = new PIXI.Text(text, getStyle());
+                const TextClass = foundry.canvas.containers?.PreciseText ?? PIXI.Text;
+                bar._hpText = new TextClass(text, getStyle());
                 bar._hpText.anchor.set(0.5, 0.5);
                 bar.addChild(bar._hpText);
             } else {
                 bar._hpText.text = text;
                 bar._hpText.style = getStyle();
-                bar._hpText.visible = true;
             }
 
             // makes sure that text is over the graphics
             bar.sortableChildren = true;
             bar._hpText.zIndex = 100;
 
-            // find coordinates
-            const { width, height } = this.document.getSize();
-            const s = canvas.dimensions?.uiScale || 1;
-            const bw = width;
-            const bh = 8 * (this.document.height >= 2 ? 1.5 : 1) * s;
-
-            // since text is child of bar-container:
-            // (0,0) is top left
-            bar._hpText.x = bw / 2;
-            bar._hpText.y = bh / 2;
+            // centre on the bar Foundry just drew, measured with the text left out, so this
+            // follows whatever size core gives its bars
+            bar._hpText.visible = false;
+            const bounds = bar.getLocalBounds();
+            bar._hpText.visible = true;
+            const width = bounds.width || this.w;
+            bar._hpText.x = bounds.x + width / 2;
+            bar._hpText.y = bounds.y + bounds.height / 2;
         });
     } catch (err) {
         console.error(`${MODULE_ID} | Error drawing HP text:`, err);
@@ -89,9 +101,29 @@ function drawBarsWrapper(wrapped, ...args) {
     return result;
 }
 
+/** Whether a bar shows dnd5e hit points with a maximum worth dividing by. */
+export function isHPBar(attr) {
+    return !!attr && attr.type === 'bar' && attr.attribute === HP_ATTRIBUTE && attr.max > 0;
+}
+
+/** Whether this user gets the numbers on this token, per the world's setting. */
+function canSeeNumbers(token) {
+    return numbersVisible(game.settings.get(MODULE_ID, 'visibleTo'), {
+        isGM: game.user.isGM,
+        isOwner: token.document.isOwner
+    });
+}
+
+export function numbersVisible(visibleTo, { isGM, isOwner }) {
+    if (visibleTo === 'everyone') return true;
+    if (visibleTo === 'gm') return isGM;
+    return isGM || isOwner;
+}
+
 
 // Patching & Cleanup
-Hooks.once('ready', () => {
+// Wrapped at setup, after libWrapper is ready and before the canvas draws its first token.
+Hooks.once('setup', () => {
     // V13 token path for libWrapper
     const target = 'foundry.canvas.placeables.Token.prototype.drawBars';
     const TokenClass = foundry.canvas.placeables.Token;
@@ -104,29 +136,35 @@ Hooks.once('ready', () => {
             return drawBarsWrapper.call(this, orig, ...args);
         };
     }
-
-    // Token bar clean new render (Renderflags vor v13)
-    if (canvas?.ready) {
-        canvas.tokens.placeables.forEach(t => t.renderFlags?.set({ refreshBars: true }));
-    }
-});
-
-// any changes in settings render token fresh aswell
-Hooks.on('updateSetting', setting => {
-    if (setting.key.startsWith(`${MODULE_ID}.`) && canvas?.ready) {
-        canvas.tokens.placeables.forEach(t => t.renderFlags?.set({ refreshBars: true }));
-    }
 });
 
 
 // Helpers
+// any changes in settings render token fresh aswell. Every setting calls this from onChange,
+// which fires for client settings too (updateSetting only fires for world ones).
+function redrawAll() {
+    style = null;
+    if (canvas?.ready) canvas.tokens.placeables.forEach(t => t.renderFlags?.set({ refreshBars: true }));
+}
+
 function getStyle() {
-    return new PIXI.TextStyle({
+    style ??= new PIXI.TextStyle({
         fontFamily: 'Signika, Arial, sans-serif',
         fontSize: game.settings.get(MODULE_ID, 'fontSize'),
-        fill: game.settings.get(MODULE_ID, 'textColor'),
-        stroke: game.settings.get(MODULE_ID, 'strokeColor'),
+        fill: cssColor(game.settings.get(MODULE_ID, 'textColor'), '#ffffff'),
+        stroke: cssColor(game.settings.get(MODULE_ID, 'strokeColor'), '#000000'),
         strokeThickness: game.settings.get(MODULE_ID, 'strokeWidth'),
         align: 'center'
     });
+    return style;
+}
+
+/** A setting's colour as #rrggbb, whether it comes back as a string or a Color. */
+function cssColor(value, fallback) {
+    try {
+        const color = foundry.utils.Color.from(value);
+        return color.valid ? color.css : fallback;
+    } catch {
+        return fallback;
+    }
 }

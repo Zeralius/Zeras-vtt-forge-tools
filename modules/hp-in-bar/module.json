@@ -19,10 +19,29 @@
         "type": "system",
         "compatibility": {}
       }
+    ],
+    "recommends": [
+      {
+        "id": "lib-wrapper",
+        "type": "module",
+        "reason": "Wraps the bar drawing politely alongside other modules that touch it. HP in Bar works without it."
+      }
     ]
   },
   "esmodules": [
     "scripts/hp-in-bar.js"
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    },
+    {
+      "lang": "de",
+      "name": "Deutsch",
+      "path": "lang/de.json"
+    }
   ],
   "url": "https://github.com/Zeralius/Zeras-vtt-forge-tools",
   "manifest": "https://raw.githubusercontent.com/Zeralius/Zeras-vtt-forge-tools/main/modules/hp-in-bar/module.json",
