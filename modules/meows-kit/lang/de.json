@@ -10,10 +10,17 @@
   "MEOWSKIT.NoActorType": "Dieses System hat keinen Akteur-Typ, also blieben die Tokens Bilder.",
   "MEOWSKIT.Done": "{title}: {scenes} Szenen, {journals} Journaleinträge, {actors} Akteure, {tokens} Tokens platziert, in Ordnern mit dem Namen des Kits.",
   "MEOWSKIT.PlaceTokens": "Tokens des Ablaufplans platzieren",
-  "MEOWSKIT.PlaceTokensHint": "Die Tokens jedes Kampfes werden versteckt in einer Reihe oben links auf seine Szene gelegt, bereit zum Ziehen. Aus lässt die Kämpfe nur als Journalseiten.",
+  "MEOWSKIT.PlaceTokensHint": "Die Tokens jedes Kampfes werden versteckt in einer eigenen Reihe oben auf seine Szene gelegt, bereit zum Ziehen. Aus lässt die Kämpfe nur als Journalseiten.",
   "MEOWSKIT.RunSheetFor": "{scene} — Ablaufplan",
   "MEOWSKIT.RunSheet": "{title} — Ablaufplan",
   "MEOWSKIT.UnnamedFight": "Kampf",
   "MEOWSKIT.OnTheMap": "Auf der Karte:",
-  "MEOWSKIT.TokensFailed": "Die Tokens ließen sich nicht auf {name} platzieren: {error}"
+  "MEOWSKIT.TokensFailed": "Die Tokens ließen sich nicht auf {name} platzieren: {error}",
+  "MEOWSKIT.NoteFailed": "Die Notiz {note} ließ sich nicht lesen: {error}",
+  "MEOWSKIT.AlreadyImportedTitle": "Kit schon importiert",
+  "MEOWSKIT.AlreadyImported": "<strong>{title}</strong> ist schon in dieser Welt. Noch einmal importieren, als zweiten Satz Szenen, Journale und Akteure?",
+  "MEOWSKIT.RelocateTitle": "Kits aus dem Modulordner verschieben",
+  "MEOWSKIT.Relocate": "Diese Welt nutzt {count} Bilder aus Kits in <code>{from}</code>. Das nächste Update von Meows Kit löscht diesen Ordner und die Bilder mit. Nach <code>{to}</code> kopieren und Szenen, Tokens, Akteure und Journale auf die Kopien umstellen?",
+  "MEOWSKIT.Relocated": "{count} Kit-Bilder nach {to} verschoben.",
+  "MEOWSKIT.RelocatePartial": "{count} Kit-Bilder ließen sich nicht kopieren und zeigen weiter in den Modulordner. Die Konsole sagt, welche."
 }

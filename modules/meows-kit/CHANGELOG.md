@@ -2,6 +2,23 @@
 
 Whatever sits under a version heading here gets pulled into that version's GitHub release notes.
 
+## Unreleased
+
+- **Kits live in the world now**, in `worlds/<world>/meows-kits/`. They used to go in
+  `modules/meows-kit/kits/`, which Foundry deletes on every module update, taking the scene
+  backgrounds, handouts and tokens with it. A world that still uses pictures from there offers to
+  copy them out and repoint everything on the next start.
+- **Notes and run sheets render.** Text pages were given markdown where Foundry wants HTML, so
+  they showed as raw markdown. They now carry both, and stay editable in the markdown editor.
+- **Placed tokens stay on the map.** A row per fight, wrapping before the scene's right edge, and
+  big tokens take the squares they need.
+- **Importing a kit twice asks first.** `importKit(folder, { ifExists })` takes `'ask'`, `'skip'`
+  or `'again'` from a macro.
+- Grids smaller than 50 px, or not a whole number of pixels, scale the scene up until they are,
+  so the grid stays on the map's lines instead of being bumped to 50 on its own.
+- A note that cannot be read now says so instead of going missing.
+- The settings button uses ApplicationV2, so v13 no longer logs a deprecation warning for it.
+
 ## 0.2.0
 
 - **The run sheet.** A kit's fights (`encounters` in `kit.json`, written by Meows 2.20.0 or

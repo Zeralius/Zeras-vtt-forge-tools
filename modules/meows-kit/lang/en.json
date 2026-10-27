@@ -10,10 +10,17 @@
   "MEOWSKIT.NoActorType": "This system has no actor type to make, so the tokens stayed as pictures.",
   "MEOWSKIT.Done": "{title}: {scenes} scenes, {journals} journal entries, {actors} actors, {tokens} tokens placed, in folders named after the kit.",
   "MEOWSKIT.PlaceTokens": "Place the run sheet's tokens",
-  "MEOWSKIT.PlaceTokensHint": "Each fight's tokens are put on its scene, hidden, in a row at the top-left, ready to be dragged into place. Off leaves the fights as journal pages only.",
+  "MEOWSKIT.PlaceTokensHint": "Each fight's tokens are put on its scene, hidden, in a row of their own along the top, ready to be dragged into place. Off leaves the fights as journal pages only.",
   "MEOWSKIT.RunSheetFor": "{scene} — run sheet",
   "MEOWSKIT.RunSheet": "{title} — run sheet",
   "MEOWSKIT.UnnamedFight": "Fight",
   "MEOWSKIT.OnTheMap": "On the map:",
-  "MEOWSKIT.TokensFailed": "Could not place the tokens on {name}: {error}"
+  "MEOWSKIT.TokensFailed": "Could not place the tokens on {name}: {error}",
+  "MEOWSKIT.NoteFailed": "Could not read the note {note}: {error}",
+  "MEOWSKIT.AlreadyImportedTitle": "Kit already imported",
+  "MEOWSKIT.AlreadyImported": "<strong>{title}</strong> is already in this world. Import it again as a second set of scenes, journals and actors?",
+  "MEOWSKIT.RelocateTitle": "Move kits out of the module folder",
+  "MEOWSKIT.Relocate": "This world uses {count} pictures from kits in <code>{from}</code>. The next update of Meows Kit deletes that folder, and those pictures with it. Copy them to <code>{to}</code> and point the scenes, tokens, actors and journals at the copies?",
+  "MEOWSKIT.Relocated": "Moved {count} kit pictures to {to}.",
+  "MEOWSKIT.RelocatePartial": "{count} kit pictures could not be copied and still point into the module folder. The console says which."
 }
