@@ -1,0 +1,19 @@
+{
+  "FLIPSIDE.Duration": "Dauer des Umdrehens",
+  "FLIPSIDE.DurationHint": "Wie lange das ganze Umdrehen dauert, in Millisekunden. Das Bild wechselt auf halbem Weg.",
+  "FLIPSIDE.PlayersCanFlip": "Spieler dürfen umdrehen",
+  "FLIPSIDE.PlayersCanFlipHint": "Spieler dürfen Tokens umdrehen, die ihnen gehören. Aus heißt: nur die Spielleitung.",
+  "FLIPSIDE.Wrap": "Von vorn beginnen",
+  "FLIPSIDE.WrapHint": "Nach dem letzten Bild geht es wieder mit dem ersten weiter.",
+  "FLIPSIDE.Flip": "Token umdrehen",
+  "FLIPSIDE.FlipHint": "Die gewählten Tokens auf ihr nächstes Bild drehen.",
+  "FLIPSIDE.FlipBack": "Token zurückdrehen",
+  "FLIPSIDE.FlipBackHint": "Die gewählten Tokens auf ihr vorheriges Bild drehen.",
+  "FLIPSIDE.GMOnly": "Flipside | In dieser Welt darf nur die Spielleitung Tokens umdrehen.",
+  "FLIPSIDE.NotOwner": "Flipside | Du kannst nur Tokens umdrehen, die dir gehören.",
+  "FLIPSIDE.Tab": "Flipside",
+  "FLIPSIDE.Images": "Bilder zum Umdrehen",
+  "FLIPSIDE.ImagesHint": "Ein Bildpfad pro Zeile, in der Reihenfolge, in der umgedreht werden soll. Jeder Druck auf die Taste dreht zur nächsten Zeile. Mit weniger als zwei Zeilen gibt es nichts umzudrehen.",
+  "FLIPSIDE.AddImage": "Bild hinzufügen",
+  "FLIPSIDE.AddCurrent": "Aktuelles Bild hinzufügen"
+}

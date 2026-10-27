@@ -1,0 +1,19 @@
+{
+  "FLIPSIDE.Duration": "Flip Duration",
+  "FLIPSIDE.DurationHint": "How long the whole flip takes, in milliseconds. The image swaps at the halfway point.",
+  "FLIPSIDE.PlayersCanFlip": "Players Can Flip",
+  "FLIPSIDE.PlayersCanFlipHint": "Let players flip tokens they own. Turn this off to make flipping GM-only.",
+  "FLIPSIDE.Wrap": "Wrap Around",
+  "FLIPSIDE.WrapHint": "When you flip past the last image, go back to the first one.",
+  "FLIPSIDE.Flip": "Flip Token",
+  "FLIPSIDE.FlipHint": "Flip the selected token(s) to their next image.",
+  "FLIPSIDE.FlipBack": "Flip Token Backwards",
+  "FLIPSIDE.FlipBackHint": "Flip the selected token(s) to their previous image.",
+  "FLIPSIDE.GMOnly": "Flipside | Only the GM can flip tokens in this world.",
+  "FLIPSIDE.NotOwner": "Flipside | You can only flip tokens you own.",
+  "FLIPSIDE.Tab": "Flipside",
+  "FLIPSIDE.Images": "Flip Images",
+  "FLIPSIDE.ImagesHint": "One image path per line, in the order you want to flip through them. The token flips to the next line each time you press the flip key. Fewer than two lines means nothing to flip between.",
+  "FLIPSIDE.AddImage": "Add image",
+  "FLIPSIDE.AddCurrent": "Add current image"
+}

@@ -20,6 +20,10 @@ anything you want to toggle: a disguised NPC, a werewolf, a statue that wakes up
 
 You can flip several tokens at once — every selected token you're allowed to flip goes together.
 
+**The animation plays only for whoever pressed the key.** Everyone else sees the image change
+straight away, without the coin flip. The new image itself reaches everybody, since it's an
+ordinary token update.
+
 ## What it does not do
 
 Flipside is **purely cosmetic**. It changes the picture and nothing else: no HP, no AC, no senses,

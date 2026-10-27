@@ -4,19 +4,19 @@ const FACES_FLAG = 'faces';
 // Settings
 Hooks.once('init', () => {
     game.settings.register(MODULE_ID, 'duration', {
-        name: 'Flip Duration',
-        hint: 'How long the whole flip takes, in milliseconds. The image swaps at the halfway point.',
+        name: 'FLIPSIDE.Duration',
+        hint: 'FLIPSIDE.DurationHint',
         scope: 'world', config: true, type: Number, default: 300,
         range: { min: 0, max: 1500, step: 50 }
     });
     game.settings.register(MODULE_ID, 'playersCanFlip', {
-        name: 'Players Can Flip',
-        hint: 'Let players flip tokens they own. Turn this off to make flipping GM-only.',
+        name: 'FLIPSIDE.PlayersCanFlip',
+        hint: 'FLIPSIDE.PlayersCanFlipHint',
         scope: 'world', config: true, type: Boolean, default: true
     });
     game.settings.register(MODULE_ID, 'wrap', {
-        name: 'Wrap Around',
-        hint: 'When you flip past the last image, go back to the first one.',
+        name: 'FLIPSIDE.Wrap',
+        hint: 'FLIPSIDE.WrapHint',
         scope: 'world', config: true, type: Boolean, default: true
     });
 
@@ -27,15 +27,15 @@ Hooks.once('init', () => {
 // Keybindings
 function registerKeybindings() {
     game.keybindings.register(MODULE_ID, 'flip', {
-        name: 'Flip Token',
-        hint: 'Flip the selected token(s) to their next image.',
+        name: 'FLIPSIDE.Flip',
+        hint: 'FLIPSIDE.FlipHint',
         editable: [{ key: 'KeyF' }],
         onDown: () => flipControlled(1),
         precedence: CONST.KEYBINDING_PRECEDENCE.NORMAL
     });
     game.keybindings.register(MODULE_ID, 'flipBack', {
-        name: 'Flip Token Backwards',
-        hint: 'Flip the selected token(s) to their previous image.',
+        name: 'FLIPSIDE.FlipBack',
+        hint: 'FLIPSIDE.FlipBackHint',
         editable: [{ key: 'KeyF', modifiers: ['Shift'] }],
         onDown: () => flipControlled(-1),
         precedence: CONST.KEYBINDING_PRECEDENCE.NORMAL
@@ -46,9 +46,13 @@ function flipControlled(direction) {
     const tokens = canvas?.tokens?.controlled ?? [];
     if (!tokens.length) return false;
 
+    if (!game.user.isGM && !game.settings.get(MODULE_ID, 'playersCanFlip')) {
+        ui.notifications.warn(game.i18n.localize('FLIPSIDE.GMOnly'));
+        return true;
+    }
     const allowed = tokens.filter(canFlip);
     if (!allowed.length) {
-        ui.notifications.warn('Flipside | You do not have permission to flip that token.');
+        ui.notifications.warn(game.i18n.localize('FLIPSIDE.NotOwner'));
         return true;
     }
 
@@ -69,17 +73,22 @@ function canFlip(token) {
 // The face list is stored as one image path per line, which keeps it a plain string and
 // therefore something the normal token config form can submit without any array wrangling.
 function getFaces(tokenDocument) {
-    const raw = tokenDocument.getFlag(MODULE_ID, FACES_FLAG);
+    return parseFaces(tokenDocument.flags?.[MODULE_ID]?.[FACES_FLAG]);
+}
+
+export function parseFaces(raw) {
     if (!raw || typeof raw !== 'string') return [];
     return raw.split('\n').map(line => line.trim()).filter(Boolean);
 }
 
 /** The next image to show, or null when there is nowhere to go. */
 function nextFace(tokenDocument, direction) {
-    const faces = getFaces(tokenDocument);
+    return pickFace(getFaces(tokenDocument), tokenDocument.texture?.src, direction, game.settings.get(MODULE_ID, 'wrap'));
+}
+
+export function pickFace(faces, current, direction, wrap) {
     if (faces.length < 2) return null;
 
-    const current = tokenDocument.texture?.src;
     const index = faces.indexOf(current);
 
     // If the token is showing something that is not in its own list, treat the flip as a
@@ -87,7 +96,7 @@ function nextFace(tokenDocument, direction) {
     if (index === -1) return faces[0];
 
     const target = index + direction;
-    if (!game.settings.get(MODULE_ID, 'wrap') && (target < 0 || target >= faces.length)) return null;
+    if (!wrap && (target < 0 || target >= faces.length)) return null;
 
     return faces[(target + faces.length) % faces.length];
 }
@@ -108,32 +117,38 @@ async function flipToken(token, direction) {
         return;
     }
 
-    // Whatever the mesh is scaled to right now is the value to squash from and return to.
-    // Reading it rather than assuming 1 keeps mirrored and oddly-scaled tokens working.
+    // Whatever the mesh is scaled to right now is the value to squash from. Reading it rather
+    // than assuming 1 keeps mirrored and oddly-scaled tokens working. `naturalScaleX` is the
+    // scale Foundry itself wants for the mesh; it changes when the new image arrives, because
+    // Foundry sizes the mesh from the picture's pixel size, and the second half springs out to it.
     const baseScaleX = token.mesh?.scale?.x ?? 1;
-    flipping.set(token.id, { baseScaleX, scaleX: baseScaleX });
+    const state = { scaleX: baseScaleX, naturalScaleX: baseScaleX };
+    flipping.set(token.id, state);
 
     try {
-        await animateScaleX(token, baseScaleX, 0, duration / 2);
+        // Load the picture first, so the swap does not leave the token blank while it arrives.
+        await Promise.resolve(foundry.canvas.loadTexture?.(target)).catch(() => null);
+
+        await animateScaleX(token, () => baseScaleX, () => 0, duration / 2);
 
         // Swap at the halfway point, while the token is edge-on and the change is invisible.
         // animate:false stops Foundry cross-fading the texture underneath our own animation.
         await token.document.update({ 'texture.src': target }, { animate: false });
 
-        await animateScaleX(token, 0, baseScaleX, duration / 2);
+        await animateScaleX(token, () => 0, () => state.naturalScaleX, duration / 2);
     } catch (err) {
         console.error(`${MODULE_ID} | Flip failed:`, err);
     } finally {
         flipping.delete(token.id);
-        // Hand the mesh back to Foundry in the state it expects.
-        if (token.mesh) token.mesh.scale.x = baseScaleX;
+        // Hand the mesh back to Foundry and let it size it for whichever image it now shows.
+        token.renderFlags?.set({ refreshMesh: true });
     }
 }
 
 function animateScaleX(token, from, to, duration) {
     return new Promise(resolve => {
         if (duration <= 0) {
-            applyScaleX(token, to);
+            applyScaleX(token, to());
             return resolve();
         }
 
@@ -141,7 +156,9 @@ function animateScaleX(token, from, to, duration) {
         function frame(now) {
             const t = Math.min(1, (now - start) / duration);
             const eased = t * t * (3 - 2 * t); // smoothstep, so the squash eases in and out
-            applyScaleX(token, from + (to - from) * eased);
+            // Read the ends every frame: the target moves once the new image's mesh is sized.
+            const a = from();
+            applyScaleX(token, a + (to() - a) * eased);
 
             if (t < 1) requestAnimationFrame(frame);
             else resolve();
@@ -158,9 +175,14 @@ function applyScaleX(token, value) {
 
 // The texture swap mid-flip makes Foundry refresh the token, which resets the mesh scale and
 // would pop the token back to full width for a frame. Re-apply our value after each refresh.
+// A scale that is not ours is the one Foundry just worked out for the image, so keep it as the
+// size to spring back out to.
 Hooks.on('refreshToken', token => {
     const state = flipping.get(token.id);
-    if (state && token.mesh) token.mesh.scale.x = state.scaleX;
+    if (!state || !token.mesh) return;
+    const scaleX = token.mesh.scale.x;
+    if (scaleX !== state.scaleX && scaleX !== 0) state.naturalScaleX = scaleX;
+    token.mesh.scale.x = state.scaleX;
 });
 
 
@@ -196,7 +218,7 @@ function injectFacesTab(app, element) {
     link.dataset.tab = MODULE_ID;
     link.dataset.group = group;
     if (templateLink.dataset.action) link.dataset.action = templateLink.dataset.action;
-    link.innerHTML = '<i class="fas fa-clone"></i> Flipside';
+    link.innerHTML = `<i class="fas fa-clone"></i> ${game.i18n.localize('FLIPSIDE.Tab')}`;
     nav.appendChild(link);
 
     const section = document.createElement(templateSection.tagName);
@@ -226,22 +248,18 @@ function facesTabContent(tokenDocument) {
 
     return `
         <fieldset>
-            <legend>Flip Images</legend>
-            <p class="notes">
-                One image path per line, in the order you want to flip through them.
-                The token flips to the next line each time you press the flip key.
-                Fewer than two lines means nothing to flip between.
-            </p>
+            <legend>${game.i18n.localize('FLIPSIDE.Images')}</legend>
+            <p class="notes">${game.i18n.localize('FLIPSIDE.ImagesHint')}</p>
             <div class="form-group stacked">
                 <textarea name="flags.${MODULE_ID}.${FACES_FLAG}" rows="6"
                           data-flipside-faces>${escapeHTML(value)}</textarea>
             </div>
             <div class="form-group">
                 <button type="button" data-flipside-browse>
-                    <i class="fas fa-file-import"></i> Add image
+                    <i class="fas fa-file-import"></i> ${game.i18n.localize('FLIPSIDE.AddImage')}
                 </button>
                 <button type="button" data-flipside-add-current>
-                    <i class="fas fa-plus"></i> Add current image
+                    <i class="fas fa-plus"></i> ${game.i18n.localize('FLIPSIDE.AddCurrent')}
                 </button>
             </div>
         </fieldset>
