@@ -3,7 +3,7 @@
 Whatever's under the heading for a version gets pulled into that version's GitHub release notes,
 so it's worth keeping this up to date.
 
-## Unreleased
+## 1.2.0
 
 - **Temp HP in the numbers.** With temporary hit points the text reads `243 +12 / 243`, the
   `+12` in dnd5e's temp HP blue.

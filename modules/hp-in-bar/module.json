@@ -7,7 +7,7 @@
       "name": "Zeralius"
     }
   ],
-  "version": "1.1.1",
+  "version": "1.2.0",
   "compatibility": {
     "minimum": "13",
     "verified": "14"
@@ -45,5 +45,5 @@
   ],
   "url": "https://github.com/Zeralius/Zeras-vtt-forge-tools",
   "manifest": "https://raw.githubusercontent.com/Zeralius/Zeras-vtt-forge-tools/main/modules/hp-in-bar/module.json",
-  "download": "https://github.com/Zeralius/Zeras-vtt-forge-tools/releases/download/hp-in-bar-v1.1.1/hp-in-bar.zip"
+  "download": "https://github.com/Zeralius/Zeras-vtt-forge-tools/releases/download/hp-in-bar-v1.2.0/hp-in-bar.zip"
 }
