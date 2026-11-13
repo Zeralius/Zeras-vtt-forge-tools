@@ -24,5 +24,10 @@
   "HPINBAR.AcWarning": "Warn When the AC Doesn't Add Up",
   "HPINBAR.AcWarningHint": "After an edit in the token HUD, warn if the AC the system shows isn't the one you typed. Off by default, since effects and features that change AC on their own can set it off.",
   "HPINBAR.TempShield": "Temp HP Shield",
-  "HPINBAR.TempShieldHint": "Draws temporary hit points as a see-through blue shield over the health bar, instead of only dnd5e's thin stripe. The +12 next to the HP numbers shows either way."
+  "HPINBAR.TempShieldHint": "Draws temporary hit points as a see-through blue shield over the health bar, instead of only dnd5e's thin stripe. The +12 next to the HP numbers shows either way.",
+  "HPINBAR.TempText": "Temp HP in the Numbers",
+  "HPINBAR.TempTextHint": "How temporary hit points show in the HP text. The blue on the bar shows them either way.",
+  "HPINBAR.TempTextSeparate": "Separately in blue: 243 +100 / 243",
+  "HPINBAR.TempTextCombined": "Added to the HP: 343 / 243",
+  "HPINBAR.TempTextHidden": "Not at all: 243 / 243"
 }

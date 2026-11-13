@@ -175,6 +175,9 @@ test('hp-in-bar: temp HP shows as its own piece of the text', () => {
     assert.deepEqual(hp.hpLabel({ value: 243, max: 243, temp: 12 }), { value: '243 ', temp: '+12', max: ' / 243' });
     assert.deepEqual(hp.hpLabel({ value: 40, max: 50, temp: 0 }), { value: '40', temp: null, max: ' / 50' });
     assert.deepEqual(hp.hpLabel({ value: 40, max: 50, temp: null }), { value: '40', temp: null, max: ' / 50' });
+    assert.deepEqual(hp.hpLabel({ value: 243, max: 243, temp: 100 }, 'combined'), { value: '343', temp: null, max: ' / 243' });
+    assert.deepEqual(hp.hpLabel({ value: 243, max: 243, temp: 100 }, 'hidden'), { value: '243', temp: null, max: ' / 243' });
+    assert.deepEqual(hp.hpLabel({ value: 40, max: 50, temp: 0 }, 'combined'), { value: '40', temp: null, max: ' / 50' });
 });
 
 test('hp-in-bar: the temp HP shield is measured the way dnd5e measures its stripe', () => {

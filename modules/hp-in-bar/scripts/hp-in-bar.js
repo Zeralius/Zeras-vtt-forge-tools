@@ -47,6 +47,16 @@ Hooks.once('init', () => {
         hint: 'HPINBAR.AcWarningHint',
         scope: 'client', config: true, type: Boolean, default: false
     });
+    game.settings.register(MODULE_ID, 'tempText', {
+        name: 'HPINBAR.TempText',
+        hint: 'HPINBAR.TempTextHint',
+        scope: 'client', config: true, onChange: redrawAll, type: String, default: 'separate',
+        choices: {
+            separate: 'HPINBAR.TempTextSeparate',
+            combined: 'HPINBAR.TempTextCombined',
+            hidden: 'HPINBAR.TempTextHidden'
+        }
+    });
     game.settings.register(MODULE_ID, 'tempShield', {
         name: 'HPINBAR.TempShield',
         hint: 'HPINBAR.TempShieldHint',
@@ -108,7 +118,8 @@ function drawBarsWrapper(wrapped, ...args) {
                 return;
             }
 
-            const parts = hpLabel({ value: attr.value, max: attr.max, temp: hp.temp });
+            const parts = hpLabel({ value: attr.value, max: attr.max, temp: hp.temp },
+                game.settings.get(MODULE_ID, 'tempText'));
             const label = hpTextContainer(bar);
             label._value.text = parts.value;
             label._temp.text = parts.temp ?? '';
@@ -173,12 +184,17 @@ function hpTextContainer(bar) {
     return label;
 }
 
-/** `243 / 243`, or with temp HP `243 +12 / 243`, split so the `+12` can be coloured. */
-export function hpLabel({ value, max, temp }) {
+/**
+ * The HP text in pieces, so temp HP can have a colour of its own. With 100 temp HP on 243:
+ * - `separate`: `243 +100 / 243`, the `+100` in blue
+ * - `combined`: `343 / 243`, temp HP counted into the first number
+ * - `hidden`:   `243 / 243`, temp HP left to the bar
+ */
+export function hpLabel({ value, max, temp }, mode = 'separate') {
     const t = Number(temp) || 0;
-    return t > 0
-        ? { value: `${value} `, temp: `+${t}`, max: ` / ${max}` }
-        : { value: `${value}`, temp: null, max: ` / ${max}` };
+    if (t > 0 && mode === 'separate') return { value: `${value} `, temp: `+${t}`, max: ` / ${max}` };
+    if (t > 0 && mode === 'combined') return { value: `${(Number(value) || 0) + t}`, temp: null, max: ` / ${max}` };
+    return { value: `${value}`, temp: null, max: ` / ${max}` };
 }
 
 /**
@@ -272,13 +288,15 @@ function drawAcBadge(token) {
     badge._text.scale.set(0.8);
     badge._text.position.set(0, -h * 0.06);
 
-    // Left end of bar1, vertically on its middle. No bar1 → the token's bottom-left corner.
+    // Just left of bar1, overlapping it only a little so the numbers stay clear, vertically on
+    // its middle. No bar1 → just left of the token's bottom-left corner.
+    const overlap = w * 0.2;
     const bar = bars.bar1;
     if (bar?.visible) {
         const b = barBounds(bar);
-        badge.position.set(bar.x + b.x, bar.y + b.y + b.height / 2);
+        badge.position.set(bar.x + b.x - w / 2 + overlap, bar.y + b.y + b.height / 2);
     } else {
-        badge.position.set(0, token.h - h / 2);
+        badge.position.set(-w / 2 + overlap, token.h - h / 2);
     }
     badge.visible = true;
 }

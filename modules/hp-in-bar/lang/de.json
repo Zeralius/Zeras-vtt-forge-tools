@@ -24,5 +24,10 @@
   "HPINBAR.AcWarning": "Warnen, wenn die RK nicht aufgeht",
   "HPINBAR.AcWarningHint": "Nach einer Änderung im Token-HUD warnen, wenn das System eine andere RK zeigt als eingegeben. Standardmäßig aus, weil Effekte und Merkmale, die die RK selbst ändern, sie auslösen können.",
   "HPINBAR.TempShield": "TTP-Schild",
-  "HPINBAR.TempShieldHint": "Zeigt temporäre Trefferpunkte als durchscheinendes blaues Schild über dem Lebensbalken statt nur als dünnen Streifen von dnd5e. Das +12 neben den TP-Zahlen erscheint so oder so."
+  "HPINBAR.TempShieldHint": "Zeigt temporäre Trefferpunkte als durchscheinendes blaues Schild über dem Lebensbalken statt nur als dünnen Streifen von dnd5e. Das +12 neben den TP-Zahlen erscheint so oder so.",
+  "HPINBAR.TempText": "TTP in den Zahlen",
+  "HPINBAR.TempTextHint": "Wie temporäre Trefferpunkte im TP-Text erscheinen. Das Blau auf dem Balken zeigt sie so oder so.",
+  "HPINBAR.TempTextSeparate": "Getrennt in Blau: 243 +100 / 243",
+  "HPINBAR.TempTextCombined": "Zu den TP addiert: 343 / 243",
+  "HPINBAR.TempTextHidden": "Gar nicht: 243 / 243"
 }

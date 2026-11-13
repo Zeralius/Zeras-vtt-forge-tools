@@ -3,6 +3,13 @@
 Whatever's under the heading for a version gets pulled into that version's GitHub release notes,
 so it's worth keeping this up to date.
 
+## Unreleased
+
+- **Temp HP in the Numbers**, a per-player setting: `243 +100 / 243` with the `+100` in blue
+  (the default), `343 / 243` with temp HP added in, or temp HP left out of the text.
+- The AC shield sits just left of the bar instead of on it, so it no longer covers the start of
+  the HP numbers.
+
 ## 1.2.0
 
 - **Temp HP in the numbers.** With temporary hit points the text reads `243 +12 / 243`, the

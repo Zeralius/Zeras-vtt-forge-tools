@@ -10,8 +10,13 @@ updates whenever HP changes. Only the bar showing `attributes.hp` gets numbers.
 
 ## Temporary hit points
 
-When a token has temp HP, the numbers show it in blue: `243 +12 / 243`. The blue is the same one
-dnd5e uses for its temp HP stripe, so the two match.
+When a token has temp HP, the numbers show it. **Temp HP in the Numbers** (per player) picks how:
+
+| Choice | With 100 temp HP on 243 |
+| --- | --- |
+| Separately in blue (default) | `243 +100 / 243`, the `+100` in dnd5e's temp HP blue |
+| Added to the HP | `343 / 243` |
+| Not at all | `243 / 243` |
 
 dnd5e marks temp HP with a thin stripe inside the bar that's easy to miss. Turn on **Temp HP
 Shield** (per player, off by default) and the temp HP becomes a see-through blue layer over the
@@ -32,7 +37,7 @@ The bar itself still follows the token's own *Display Bars* setting.
 
 ## Armour Class
 
-A small shield with the token's AC sits on the left end of the health bar. It shows and hides with
+A small shield with the token's AC sits just left of the health bar. It shows and hides with
 the bars, and **Who Sees the AC** picks who gets it, with the same choices as the HP numbers plus
 *Nobody* to turn it off. The default is the token's owners and the GM, so enemy AC stays hidden.
 
@@ -68,6 +73,7 @@ These are per-player, so everyone can set them to taste:
 | HP Text Color | white | Colour of the numbers. |
 | HP Stroke/Outline Color | black | Outline colour, so the text stays readable over a bright bar. |
 | HP Stroke Width | `4` | How thick that outline is, in pixels. Set it to 0 to turn it off. |
+| Temp HP in the Numbers | separately | `243 +100 / 243`, `343 / 243`, or leave temp HP out of the text. |
 | Temp HP Shield | off | Temp HP as a blue shield over the bar instead of dnd5e's thin stripe. |
 
 Changing any of them redraws the tokens straight away, no reload needed.
