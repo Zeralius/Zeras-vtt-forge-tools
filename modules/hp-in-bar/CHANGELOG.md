@@ -3,7 +3,7 @@
 Whatever's under the heading for a version gets pulled into that version's GitHub release notes,
 so it's worth keeping this up to date.
 
-## Unreleased
+## 1.1.0
 
 - **The AC is on the bar.** A small shield on the left end of the health bar shows the token's
   Armour Class. **Who Sees the AC** is a world setting with the same choices as the HP numbers,
