@@ -1,7 +1,7 @@
 {
   "id": "hp-in-bar",
-  "title": "HP in Bar",
-  "description": "Displays numerical HP values inside the token health bar on the canvas for D&D 5e.",
+  "title": "HP & AC in Bar",
+  "description": "Displays numerical HP values inside the token health bar on the canvas for D&D 5e, with the AC on the bar and editable from the token HUD.",
   "authors": [
     {
       "name": "Zeralius"
@@ -24,7 +24,7 @@
       {
         "id": "lib-wrapper",
         "type": "module",
-        "reason": "Wraps the bar drawing politely alongside other modules that touch it. HP in Bar works without it."
+        "reason": "Wraps the bar drawing politely alongside other modules that touch it. HP & AC in Bar works without it."
       }
     ]
   },

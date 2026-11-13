@@ -11,5 +11,16 @@
   "HPINBAR.StrokeColor": "TP-Konturfarbe",
   "HPINBAR.StrokeColorHint": "Farbe der Kontur, damit die Zahlen auf dem Balken lesbar bleiben.",
   "HPINBAR.StrokeWidth": "TP-Konturstärke",
-  "HPINBAR.StrokeWidthHint": "Dicke der Kontur in Pixeln."
+  "HPINBAR.StrokeWidthHint": "Dicke der Kontur in Pixeln.",
+  "HPINBAR.AcVisibleTo": "Wer die RK sieht",
+  "HPINBAR.AcVisibleToHint": "Wer das RK-Schild am Lebensbalken eines Tokens und das RK-Feld im Token-HUD bekommt. Wer den Akteur bearbeiten darf, kann sie im HUD ändern.",
+  "HPINBAR.AcOff": "Niemand, ausschalten",
+  "HPINBAR.AcLabel": "Rüstungsklasse",
+  "HPINBAR.AcAdjustment": "RK-Anpassung",
+  "HPINBAR.AcTooltip": "Rüstungsklasse. +2 oder -2 passt sie an, eine Zahl setzt die gewünschte RK. 0 oder leer entfernt die Anpassung.",
+  "HPINBAR.AcTooltipAdjusted": "{base} berechnet, {adjustment} Anpassung. 0 oder leer entfernt sie.",
+  "HPINBAR.AcTooltipOverride": "{value}, von Hand in den Rüstungseinstellungen des Bogens gesetzt. Änderungen hier ändern diese Zahl.",
+  "HPINBAR.AcMismatch": "HP & AC in Bar: Die RK sollte jetzt {expected} sein, das System zeigt aber {now}. Die Rüstungsberechnung nutzt vielleicht keine Boni; bitte im Bogen prüfen.",
+  "HPINBAR.AcWarning": "Warnen, wenn die RK nicht aufgeht",
+  "HPINBAR.AcWarningHint": "Nach einer Änderung im Token-HUD warnen, wenn das System eine andere RK zeigt als eingegeben. Standardmäßig aus, weil Effekte und Merkmale, die die RK selbst ändern, sie auslösen können."
 }

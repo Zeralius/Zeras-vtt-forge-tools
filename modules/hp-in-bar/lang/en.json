@@ -11,5 +11,16 @@
   "HPINBAR.StrokeColor": "HP Stroke/Outline Color",
   "HPINBAR.StrokeColorHint": "Outline colour for readability against the bar background.",
   "HPINBAR.StrokeWidth": "HP Stroke Width",
-  "HPINBAR.StrokeWidthHint": "Thickness of the text outline in pixels."
+  "HPINBAR.StrokeWidthHint": "Thickness of the text outline in pixels.",
+  "HPINBAR.AcVisibleTo": "Who Sees the AC",
+  "HPINBAR.AcVisibleToHint": "Who gets the AC shield on a token's health bar, and the AC box in the token HUD. Anyone who can edit the actor can change it from the HUD.",
+  "HPINBAR.AcOff": "Nobody, turn it off",
+  "HPINBAR.AcLabel": "Armor Class",
+  "HPINBAR.AcAdjustment": "AC adjustment",
+  "HPINBAR.AcTooltip": "Armor Class. Type +2 or -2 to adjust it, or the AC you want. 0 or empty clears the adjustment.",
+  "HPINBAR.AcTooltipAdjusted": "{base} calculated, {adjustment} adjustment. 0 or empty clears it.",
+  "HPINBAR.AcTooltipOverride": "{value}, set by hand in the sheet's armour settings. Edits here change that number.",
+  "HPINBAR.AcMismatch": "HP & AC in Bar: the AC should now be {expected}, but the system shows {now}. Its armour calculation may not use bonuses; check the sheet.",
+  "HPINBAR.AcWarning": "Warn When the AC Doesn't Add Up",
+  "HPINBAR.AcWarningHint": "After an edit in the token HUD, warn if the AC the system shows isn't the one you typed. Off by default, since effects and features that change AC on their own can set it off."
 }

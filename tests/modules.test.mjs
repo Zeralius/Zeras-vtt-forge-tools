@@ -122,6 +122,55 @@ test('hp-in-bar: who sees the numbers', () => {
     assert.deepEqual(['owner', 'everyone', 'gm'].map(v => hp.numbersVisible(v, gm)), [true, true, true]);
 });
 
+test('hp-in-bar: AC visibility can be turned off', () => {
+    assert.equal(hp.numbersVisible('off', { isGM: true, isOwner: true }), false);
+});
+
+test('hp-in-bar: AC edits become an adjustment, never an overwrite', () => {
+    const plain = { value: 15, adjustment: 0, override: null };
+    assert.deepEqual(hp.planAcEdit('+2', plain), { action: 'adjust', adjustment: 2 });
+    assert.deepEqual(hp.planAcEdit(' - 3 ', plain), { action: 'adjust', adjustment: -3 });
+    assert.deepEqual(hp.planAcEdit('17', plain), { action: 'adjust', adjustment: 2 });
+    assert.deepEqual(hp.planAcEdit('15', plain), { action: 'none' });
+    assert.deepEqual(hp.planAcEdit('', plain), { action: 'none' });
+    assert.deepEqual(hp.planAcEdit('abc', plain), { action: 'none' });
+
+    // Shield is on: 15 calculated + 5 shows as 20.
+    const shielded = { value: 20, adjustment: 5, override: null };
+    assert.deepEqual(hp.planAcEdit('+2', shielded), { action: 'adjust', adjustment: 7 });
+    assert.deepEqual(hp.planAcEdit('-5', shielded), { action: 'clear' });
+    assert.deepEqual(hp.planAcEdit('15', shielded), { action: 'clear' });
+    assert.deepEqual(hp.planAcEdit('18', shielded), { action: 'adjust', adjustment: 3 });
+    for (const reset of ['0', '', '=']) assert.deepEqual(hp.planAcEdit(reset, shielded), { action: 'clear' });
+});
+
+test('hp-in-bar: with a manual override, AC edits change the override', () => {
+    const fixed = { value: 14, adjustment: 0, override: 14 };
+    assert.deepEqual(hp.planAcEdit('+2', fixed), { action: 'override', override: 16 });
+    assert.deepEqual(hp.planAcEdit('18', fixed), { action: 'override', override: 18 });
+    assert.deepEqual(hp.planAcEdit('-20', fixed), { action: 'override', override: 0 });
+    assert.deepEqual(hp.planAcEdit('14', fixed), { action: 'none' });
+});
+
+test('hp-in-bar: the adjustment effect has the shape each core generation expects', () => {
+    const v14 = hp.adjustmentEffectData(3, { generation: 14, name: 'AC adjustment', addMode: 2 });
+    assert.deepEqual(v14.system.changes, [{ key: 'system.attributes.ac.bonus', type: 'add', value: 3 }]);
+    assert.equal(v14.changes, undefined);
+    assert.equal(v14.flags['hp-in-bar'].acAdjustment, true);
+
+    const v13 = hp.adjustmentEffectData(-2, { generation: 13, name: 'AC adjustment', addMode: 2 });
+    assert.deepEqual(v13.changes, [{ key: 'system.attributes.ac.bonus', mode: 2, value: '-2' }]);
+    assert.equal(v13.system, undefined);
+});
+
+test('hp-in-bar: the adjustment is read from the effect, so sheet edits count', () => {
+    const change = value => [{ key: 'system.attributes.ac.bonus', value }];
+    assert.equal(hp.adjustmentOf({ system: { changes: change(4) } }), 4);
+    assert.equal(hp.adjustmentOf({ changes: change('-1') }), -1);
+    assert.equal(hp.adjustmentOf({ disabled: true, system: { changes: change(4) } }), 0);
+    assert.equal(hp.adjustmentOf({ system: { changes: change('1d4') } }), 0);
+});
+
 // Every string key a script uses has to be in every language file it ships, or players see the
 // raw key.
 for (const id of listModuleIds({ includeBundle: false })) {

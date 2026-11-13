@@ -11,13 +11,14 @@ with a specific system say so.
 
 | Module | Id | System | Version |
 | --- | --- | --- | --- |
-| [HP in Bar](modules/hp-in-bar) | `hp-in-bar` | D&D 5e | 1.0.7 |
+| [HP & AC in Bar](modules/hp-in-bar) | `hp-in-bar` | D&D 5e | 1.0.7 |
 | [Flipside](modules/flipside) | `flipside` | Any | 0.1.0 |
 | [Meows Kit](modules/meows-kit) | `meows-kit` | Any | 0.2.0 |
 
-**HP in Bar** puts the actual numbers inside the token's health bar, so you can read `45 / 50`
-straight off the canvas instead of opening a sheet or hovering. Font size, colour and outline are
-per-player settings.
+**HP & AC in Bar** puts the actual numbers inside the token's health bar, so you can read `45 / 50`
+straight off the canvas instead of opening a sheet or hovering. The AC sits on the bar as a small
+shield, and `+2`, `-2` or a new number in the token HUD changes it without touching the armour
+calculation. Font size, colour and outline are per-player settings.
 
 **Flipside** gives a token a list of images and flips between them with a keypress, squashing
 edge-on like a coin and swapping at the halfway point. Built for wildshape, useful for anything
@@ -60,7 +61,7 @@ Each module has its own manifest URL:
 
 | Module | Manifest URL |
 | --- | --- |
-| HP in Bar | `https://raw.githubusercontent.com/Zeralius/Zeras-vtt-forge-tools/main/modules/hp-in-bar/module.json` |
+| HP & AC in Bar | `https://raw.githubusercontent.com/Zeralius/Zeras-vtt-forge-tools/main/modules/hp-in-bar/module.json` |
 | Flipside | `https://raw.githubusercontent.com/Zeralius/Zeras-vtt-forge-tools/main/modules/flipside/module.json` |
 | Meows Kit | `https://raw.githubusercontent.com/Zeralius/Zeras-vtt-forge-tools/main/modules/meows-kit/module.json` |
 
