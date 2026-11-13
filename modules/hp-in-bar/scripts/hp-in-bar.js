@@ -325,18 +325,19 @@ Hooks.on('renderTokenHUD', (hud, html) => {
         const box = document.createElement('div');
         box.className = 'attribute hp-in-bar-ac';
         box.style.position = 'absolute';
-        box.style.display = 'flex';
-        box.style.alignItems = 'center';
-        box.style.gap = '4px';
+        box.style.boxSizing = 'border-box';
 
+        // The shield hangs off the box's left edge, so the box itself can match the HP box.
         const icon = document.createElement('i');
         icon.className = 'fa-solid fa-shield-halved';
         icon.style.color = ac.adjustment ? '#f2c14e' : 'inherit';
+        Object.assign(icon.style, { position: 'absolute', right: '100%', top: '50%',
+            transform: 'translateY(-50%)', marginRight: '6px' });
 
         const input = document.createElement('input');
         input.type = 'text';
         input.value = String(ac.value);
-        input.style.textAlign = 'center';
+        Object.assign(input.style, { textAlign: 'center', width: '100%', height: '100%', boxSizing: 'border-box' });
         input.dataset.tooltip = acTooltip(ac);
         input.setAttribute('aria-label', game.i18n.localize('HPINBAR.AcLabel'));
         box.append(icon, input);
@@ -347,9 +348,9 @@ Hooks.on('renderTokenHUD', (hud, html) => {
         const column = anchor?.parentElement ?? root.querySelector('.col.middle') ?? root;
         column.append(box);
         if (anchor) {
-            box.style.left = `${anchor.offsetLeft}px`;
-            box.style.top = `${anchor.offsetTop + anchor.offsetHeight + 4}px`;
-            box.style.width = `${anchor.offsetWidth}px`;
+            placeUnder(box, anchor, column);
+            // The HUD may still be laying itself out; measure again once it has.
+            requestAnimationFrame(() => placeUnder(box, anchor, column));
         } else {
             box.style.left = '0';
             box.style.right = '0';
@@ -375,6 +376,26 @@ Hooks.on('renderTokenHUD', (hud, html) => {
         console.error(`${MODULE_ID} | Error adding the AC box to the token HUD:`, err);
     }
 });
+
+/**
+ * Puts the box exactly under the HP box, measured where the HP box really is on screen. Core
+ * centres it with CSS (transforms, margins), so its offsetLeft says nothing, and the HUD is
+ * scaled with the canvas zoom, so screen pixels get divided back into the column's own.
+ */
+function placeUnder(box, anchor, column) {
+    if (!box.isConnected) return;
+    // Absolute positions count from the box's containing block, which may not be the column.
+    const origin = box.offsetParent ?? column;
+    const a = anchor.getBoundingClientRect();
+    const c = origin.getBoundingClientRect();
+    if (!a.width || !origin.offsetWidth) return;
+    const scale = c.width / origin.offsetWidth || 1;
+    const gap = 6;
+    box.style.left = `${(a.left - c.left) / scale - origin.clientLeft}px`;
+    box.style.top = `${(a.bottom - c.top) / scale - origin.clientTop + gap}px`;
+    box.style.width = `${a.width / scale}px`;
+    box.style.height = `${a.height / scale}px`;
+}
 
 function acTooltip(ac) {
     const i18n = game.i18n;
