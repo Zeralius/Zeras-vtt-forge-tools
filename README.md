@@ -11,7 +11,7 @@ with a specific system say so.
 
 | Module | Id | System | Version |
 | --- | --- | --- | --- |
-| [HP & AC in Bar](modules/hp-in-bar) | `hp-in-bar` | D&D 5e | 1.1.0 |
+| [HP & AC in Bar](modules/hp-in-bar) | `hp-in-bar` | D&D 5e | 1.1.1 |
 | [Flipside](modules/flipside) | `flipside` | Any | 0.1.0 |
 | [Meows Kit](modules/meows-kit) | `meows-kit` | Any | 0.2.0 |
 
