@@ -3,7 +3,7 @@
 Whatever's under the heading for a version gets pulled into that version's GitHub release notes,
 so it's worth keeping this up to date.
 
-## Unreleased
+## 1.3.0
 
 - **Temp HP in the Numbers**, a per-player setting: `343 / 243` with temp HP added in (the new
   default), `243 +100 / 243` with the `+100` in blue as in 1.2.0, or temp HP left out of the text.
