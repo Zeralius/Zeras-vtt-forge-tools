@@ -16,6 +16,21 @@ const BADGE_BORDER_ADJUSTED = 0xf2c14e;
 // for temp HP.
 let style = null;
 let tempStyle = null;
+let styleVersion = 0;
+
+// Settings read on every bar draw, cached so a redraw doesn't go through game.settings each time.
+// Cleared by redrawAll, which every one of these settings calls on change.
+let cfg = null;
+function settings() {
+    cfg ??= {
+        visibleTo: game.settings.get(MODULE_ID, 'visibleTo'),
+        acVisibleTo: game.settings.get(MODULE_ID, 'acVisibleTo'),
+        tempText: game.settings.get(MODULE_ID, 'tempText'),
+        tempShield: game.settings.get(MODULE_ID, 'tempShield'),
+        fontSize: game.settings.get(MODULE_ID, 'fontSize')
+    };
+    return cfg;
+}
 
 // Settings
 Hooks.once('init', () => {
@@ -50,10 +65,10 @@ Hooks.once('init', () => {
     game.settings.register(MODULE_ID, 'tempText', {
         name: 'HPINBAR.TempText',
         hint: 'HPINBAR.TempTextHint',
-        scope: 'client', config: true, onChange: redrawAll, type: String, default: 'separate',
+        scope: 'client', config: true, onChange: redrawAll, type: String, default: 'combined',
         choices: {
-            separate: 'HPINBAR.TempTextSeparate',
             combined: 'HPINBAR.TempTextCombined',
+            separate: 'HPINBAR.TempTextSeparate',
             hidden: 'HPINBAR.TempTextHidden'
         }
     });
@@ -103,14 +118,19 @@ function drawBarsWrapper(wrapped, ...args) {
         const allowed = canSeeNumbers(this);
 
         // Foundry interates over bar1 & bar2
+        const { tempShield, tempText } = settings();
+        const hp = this.actor.system?.attributes?.hp ?? {};
         ["bar1", "bar2"].forEach((b) => {
             const bar = this.bars[b];
             const attr = this.document.getBarAttribute(b);
-            const hp = this.actor.system?.attributes?.hp ?? {};
             const isHP = isHPBar(attr) && bar.visible;
 
+            // Measured once per draw, with our own pieces left out, so everything below follows
+            // whatever size core (or the system) gives its bars.
+            const bounds = bar._hpBounds = isHP ? barBounds(bar) : null;
+
             // The temp HP layer is part of the bar, so it follows the bar, not the numbers setting.
-            drawTempShield(bar, isHP && game.settings.get(MODULE_ID, 'tempShield') ? hp : null);
+            drawTempShield(bar, isHP && tempShield ? hp : null, bounds);
 
             // not HP || invisible || not for this user -> disable text
             if (!allowed || !isHP) {
@@ -118,33 +138,33 @@ function drawBarsWrapper(wrapped, ...args) {
                 return;
             }
 
-            const parts = hpLabel({ value: attr.value, max: attr.max, temp: hp.temp },
-                game.settings.get(MODULE_ID, 'tempText'));
+            const parts = hpLabel({ value: attr.value, max: attr.max, temp: hp.temp }, tempText);
             const label = hpTextContainer(bar);
-            label._value.text = parts.value;
-            label._temp.text = parts.temp ?? '';
-            label._max.text = parts.max;
-            label._value.style = label._max.style = getStyle();
-            label._temp.style = getTempStyle();
-            label._temp.visible = !!parts.temp;
-
-            // Lay the pieces out left to right, centred as a whole.
-            const pieces = [label._value, label._temp, label._max].filter(p => p.visible);
-            const total = pieces.reduce((sum, p) => sum + p.width, 0);
-            let x = -total / 2;
-            for (const p of pieces) { p.x = x; x += p.width; }
             label.visible = true;
+
+            // Only touch what changed: assigning a style or text, even the same one, makes PIXI
+            // render the text again, and Foundry redraws bars often.
+            const key = `${parts.value}|${parts.temp}|${parts.max}|${styleVersion}`;
+            if (label._key !== key) {
+                label._key = key;
+                setText(label._value, parts.value, getStyle());
+                setText(label._temp, parts.temp ?? '', getTempStyle());
+                setText(label._max, parts.max, getStyle());
+                label._temp.visible = !!parts.temp;
+
+                // Lay the pieces out left to right, centred as a whole.
+                const pieces = [label._value, label._temp, label._max].filter(p => p.visible);
+                const total = pieces.reduce((sum, p) => sum + p.width, 0);
+                let x = -total / 2;
+                for (const p of pieces) { p.x = x; x += p.width; }
+            }
 
             // makes sure that text is over the graphics
             bar.sortableChildren = true;
             label.zIndex = 100;
 
-            // centre on the bar Foundry just drew, measured with our own pieces left out, so
-            // this follows whatever size core gives its bars
-            const bounds = barBounds(bar);
             const width = bounds.width || this.w;
-            label.x = bounds.x + width / 2;
-            label.y = bounds.y + bounds.height / 2;
+            label.position.set(bounds.x + width / 2, bounds.y + bounds.height / 2);
         });
     } catch (err) {
         console.error(`${MODULE_ID} | Error drawing HP text:`, err);
@@ -169,6 +189,12 @@ function barBounds(bar) {
     return bounds;
 }
 
+/** Sets a text's content and style only if they differ, so PIXI doesn't render it again. */
+function setText(text, content, textStyle) {
+    if (text.text !== content) text.text = content;
+    if (text.style !== textStyle) text.style = textStyle;
+}
+
 /** The HP text as three pieces, so the temp HP can have a colour of its own. */
 function hpTextContainer(bar) {
     let label = bar._hpText;
@@ -190,7 +216,7 @@ function hpTextContainer(bar) {
  * - `combined`: `343 / 243`, temp HP counted into the first number
  * - `hidden`:   `243 / 243`, temp HP left to the bar
  */
-export function hpLabel({ value, max, temp }, mode = 'separate') {
+export function hpLabel({ value, max, temp }, mode = 'combined') {
     const t = Number(temp) || 0;
     if (t > 0 && mode === 'separate') return { value: `${value} `, temp: `+${t}`, max: ` / ${max}` };
     if (t > 0 && mode === 'combined') return { value: `${(Number(value) || 0) + t}`, temp: null, max: ` / ${max}` };
@@ -217,21 +243,24 @@ function tempColor() {
  * A see-through blue layer over the bar for temp HP, full height with a light edge, reading as a
  * shield over the green. It sits above dnd5e's thin stripe and below the numbers.
  */
-function drawTempShield(bar, hp) {
-    const fraction = hp ? tempFraction(hp) : 0;
+function drawTempShield(bar, hp, b) {
+    const fraction = hp && b ? tempFraction(hp) : 0;
+    let shield = bar._tempShield;
     if (!fraction) {
-        if (bar._tempShield && !bar._tempShield.destroyed) bar._tempShield.visible = false;
+        if (shield && !shield.destroyed) shield.visible = false;
         return;
     }
-    let shield = bar._tempShield;
     if (!shield || shield.destroyed) {
         shield = bar._tempShield = bar.addChild(new PIXI.Graphics());
         bar.sortableChildren = true;
         shield.zIndex = 50;
     }
-    shield.visible = false;
-    const b = barBounds(bar);
+    shield.visible = true;
     const s = canvas?.dimensions?.uiScale ?? 1;
+    const key = `${b.x},${b.y},${b.width},${b.height},${fraction},${s},${tempColor()}`;
+    if (shield._key === key) return;
+    shield._key = key;
+
     const inset = s;
     const w = Math.max(0, b.width * fraction - 2 * inset);
     const h = Math.max(0, b.height - 2 * inset);
@@ -240,7 +269,6 @@ function drawTempShield(bar, hp) {
     shield.beginFill(tempColor(), 0.55);
     shield.drawRoundedRect(b.x + inset, b.y + inset, w, h, 2 * s);
     shield.endFill();
-    shield.visible = true;
 }
 
 
@@ -272,28 +300,32 @@ function drawAcBadge(token) {
     }
 
     // Sized from the HP font, so one setting scales both.
-    const size = game.settings.get(MODULE_ID, 'fontSize');
+    const size = settings().fontSize;
     const w = Math.round(size * 1.6);
     const h = Math.round(size * 1.8);
     const adjusted = ac.adjustment !== 0;
 
-    badge._shape.clear();
-    badge._shape.lineStyle(Math.max(1, size / 8), adjusted ? BADGE_BORDER_ADJUSTED : BADGE_BORDER, 1);
-    badge._shape.beginFill(BADGE_FILL, 0.9);
-    drawShield(badge._shape, w, h);
-    badge._shape.endFill();
+    // Redrawn only when something on it changed; Foundry redraws bars far more often than that.
+    const key = `${ac.value}|${adjusted}|${size}|${styleVersion}`;
+    if (badge._key !== key) {
+        badge._key = key;
+        badge._shape.clear();
+        badge._shape.lineStyle(Math.max(1, size / 8), adjusted ? BADGE_BORDER_ADJUSTED : BADGE_BORDER, 1);
+        badge._shape.beginFill(BADGE_FILL, 0.9);
+        drawShield(badge._shape, w, h);
+        badge._shape.endFill();
 
-    badge._text.text = String(ac.value);
-    badge._text.style = getStyle();
-    badge._text.scale.set(0.8);
-    badge._text.position.set(0, -h * 0.06);
+        setText(badge._text, String(ac.value), getStyle());
+        badge._text.scale.set(0.8);
+        badge._text.position.set(0, -h * 0.06);
+    }
 
     // Just left of bar1, overlapping it only a little so the numbers stay clear, vertically on
     // its middle. No bar1 → just left of the token's bottom-left corner.
     const overlap = w * 0.2;
     const bar = bars.bar1;
     if (bar?.visible) {
-        const b = barBounds(bar);
+        const b = bar._hpBounds ?? barBounds(bar);
         badge.position.set(bar.x + b.x - w / 2 + overlap, bar.y + b.y + b.height / 2);
     } else {
         badge.position.set(-w / 2 + overlap, token.h - h / 2);
@@ -530,7 +562,7 @@ function canSeeNumbers(token) {
 }
 
 function canSee(token, setting) {
-    return numbersVisible(game.settings.get(MODULE_ID, setting), {
+    return numbersVisible(settings()[setting], {
         isGM: game.user.isGM,
         isOwner: token.document.isOwner
     });
@@ -566,7 +598,8 @@ Hooks.once('setup', () => {
 // any changes in settings render token fresh aswell. Every setting calls this from onChange,
 // which fires for client settings too (updateSetting only fires for world ones).
 function redrawAll() {
-    style = tempStyle = null;
+    style = tempStyle = cfg = null;
+    styleVersion++;
     if (canvas?.ready) canvas.tokens.placeables.forEach(t => t.renderFlags?.set({ refreshBars: true }));
 }
 

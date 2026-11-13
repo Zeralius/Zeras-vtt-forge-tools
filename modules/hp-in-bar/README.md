@@ -14,8 +14,8 @@ When a token has temp HP, the numbers show it. **Temp HP in the Numbers** (per p
 
 | Choice | With 100 temp HP on 243 |
 | --- | --- |
-| Separately in blue (default) | `243 +100 / 243`, the `+100` in dnd5e's temp HP blue |
-| Added to the HP | `343 / 243` |
+| Added to the HP (default) | `343 / 243`, and the blue on the bar shows how much of it is temp HP |
+| Separately in blue | `243 +100 / 243`, the `+100` in dnd5e's temp HP blue |
 | Not at all | `243 / 243` |
 
 dnd5e marks temp HP with a thin stripe inside the bar that's easy to miss. Turn on **Temp HP
@@ -73,7 +73,7 @@ These are per-player, so everyone can set them to taste:
 | HP Text Color | white | Colour of the numbers. |
 | HP Stroke/Outline Color | black | Outline colour, so the text stays readable over a bright bar. |
 | HP Stroke Width | `4` | How thick that outline is, in pixels. Set it to 0 to turn it off. |
-| Temp HP in the Numbers | separately | `243 +100 / 243`, `343 / 243`, or leave temp HP out of the text. |
+| Temp HP in the Numbers | added in | `243 +100 / 243`, `343 / 243`, or leave temp HP out of the text. |
 | Temp HP Shield | off | Temp HP as a blue shield over the bar instead of dnd5e's thin stripe. |
 
 Changing any of them redraws the tokens straight away, no reload needed.

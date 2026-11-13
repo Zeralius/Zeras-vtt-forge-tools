@@ -5,8 +5,12 @@ so it's worth keeping this up to date.
 
 ## Unreleased
 
-- **Temp HP in the Numbers**, a per-player setting: `243 +100 / 243` with the `+100` in blue
-  (the default), `343 / 243` with temp HP added in, or temp HP left out of the text.
+- **Temp HP in the Numbers**, a per-player setting: `343 / 243` with temp HP added in (the new
+  default), `243 +100 / 243` with the `+100` in blue as in 1.2.0, or temp HP left out of the text.
+- **Less lag.** Every bar redraw used to render the HP text, the temp HP layer and the AC shield
+  again from scratch, even when nothing on them had changed. Now only what changed is redrawn,
+  each bar is measured once per draw instead of up to four times, and the settings are read once
+  instead of on every draw. Moving tokens and changing AC were where it showed.
 - The AC shield sits just left of the bar instead of on it, so it no longer covers the start of
   the HP numbers.
 
