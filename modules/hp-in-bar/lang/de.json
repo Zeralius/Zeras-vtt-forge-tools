@@ -22,5 +22,7 @@
   "HPINBAR.AcTooltipOverride": "{value}, von Hand in den Rüstungseinstellungen des Bogens gesetzt. Änderungen hier ändern diese Zahl.",
   "HPINBAR.AcMismatch": "HP & AC in Bar: Die RK sollte jetzt {expected} sein, das System zeigt aber {now}. Die Rüstungsberechnung nutzt vielleicht keine Boni; bitte im Bogen prüfen.",
   "HPINBAR.AcWarning": "Warnen, wenn die RK nicht aufgeht",
-  "HPINBAR.AcWarningHint": "Nach einer Änderung im Token-HUD warnen, wenn das System eine andere RK zeigt als eingegeben. Standardmäßig aus, weil Effekte und Merkmale, die die RK selbst ändern, sie auslösen können."
+  "HPINBAR.AcWarningHint": "Nach einer Änderung im Token-HUD warnen, wenn das System eine andere RK zeigt als eingegeben. Standardmäßig aus, weil Effekte und Merkmale, die die RK selbst ändern, sie auslösen können.",
+  "HPINBAR.TempShield": "TTP-Schild",
+  "HPINBAR.TempShieldHint": "Zeigt temporäre Trefferpunkte als durchscheinendes blaues Schild über dem Lebensbalken statt nur als dünnen Streifen von dnd5e. Das +12 neben den TP-Zahlen erscheint so oder so."
 }

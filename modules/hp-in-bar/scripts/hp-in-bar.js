@@ -12,8 +12,10 @@ const BADGE_FILL = 0x1f2633;
 const BADGE_BORDER = 0xc9ced6;
 const BADGE_BORDER_ADJUSTED = 0xf2c14e;
 
-// One text style shared by every token, rebuilt only when a setting changes.
+// One text style shared by every token, rebuilt only when a setting changes, and its blue twin
+// for temp HP.
 let style = null;
+let tempStyle = null;
 
 // Settings
 Hooks.once('init', () => {
@@ -44,6 +46,11 @@ Hooks.once('init', () => {
         name: 'HPINBAR.AcWarning',
         hint: 'HPINBAR.AcWarningHint',
         scope: 'client', config: true, type: Boolean, default: false
+    });
+    game.settings.register(MODULE_ID, 'tempShield', {
+        name: 'HPINBAR.TempShield',
+        hint: 'HPINBAR.TempShieldHint',
+        scope: 'client', config: true, onChange: redrawAll, type: Boolean, default: false
     });
     game.settings.register(MODULE_ID, 'fontSize', {
         name: 'HPINBAR.FontSize',
@@ -89,36 +96,44 @@ function drawBarsWrapper(wrapped, ...args) {
         ["bar1", "bar2"].forEach((b) => {
             const bar = this.bars[b];
             const attr = this.document.getBarAttribute(b);
+            const hp = this.actor.system?.attributes?.hp ?? {};
+            const isHP = isHPBar(attr) && bar.visible;
+
+            // The temp HP layer is part of the bar, so it follows the bar, not the numbers setting.
+            drawTempShield(bar, isHP && game.settings.get(MODULE_ID, 'tempShield') ? hp : null);
 
             // not HP || invisible || not for this user -> disable text
-            if (!allowed || !isHPBar(attr) || !bar.visible) {
+            if (!allowed || !isHP) {
                 if (bar._hpText) bar._hpText.visible = false;
                 return;
             }
 
-            const text = `${attr.value} / ${attr.max}`;
+            const parts = hpLabel({ value: attr.value, max: attr.max, temp: hp.temp });
+            const label = hpTextContainer(bar);
+            label._value.text = parts.value;
+            label._temp.text = parts.temp ?? '';
+            label._max.text = parts.max;
+            label._value.style = label._max.style = getStyle();
+            label._temp.style = getTempStyle();
+            label._temp.visible = !!parts.temp;
 
-            // adds text as child of graph-bar
-            if (!bar._hpText || bar._hpText.destroyed) {
-                const TextClass = foundry.canvas.containers?.PreciseText ?? PIXI.Text;
-                bar._hpText = new TextClass(text, getStyle());
-                bar._hpText.anchor.set(0.5, 0.5);
-                bar.addChild(bar._hpText);
-            } else {
-                bar._hpText.text = text;
-                bar._hpText.style = getStyle();
-            }
+            // Lay the pieces out left to right, centred as a whole.
+            const pieces = [label._value, label._temp, label._max].filter(p => p.visible);
+            const total = pieces.reduce((sum, p) => sum + p.width, 0);
+            let x = -total / 2;
+            for (const p of pieces) { p.x = x; x += p.width; }
+            label.visible = true;
 
             // makes sure that text is over the graphics
             bar.sortableChildren = true;
-            bar._hpText.zIndex = 100;
+            label.zIndex = 100;
 
-            // centre on the bar Foundry just drew, measured with the text left out, so this
-            // follows whatever size core gives its bars
+            // centre on the bar Foundry just drew, measured with our own pieces left out, so
+            // this follows whatever size core gives its bars
             const bounds = barBounds(bar);
             const width = bounds.width || this.w;
-            bar._hpText.x = bounds.x + width / 2;
-            bar._hpText.y = bounds.y + bounds.height / 2;
+            label.x = bounds.x + width / 2;
+            label.y = bounds.y + bounds.height / 2;
         });
     } catch (err) {
         console.error(`${MODULE_ID} | Error drawing HP text:`, err);
@@ -133,14 +148,83 @@ function drawBarsWrapper(wrapped, ...args) {
     return result;
 }
 
-/** A bar's drawn rectangle in its own coordinates, with our text left out of the measurement. */
+/** A bar's drawn rectangle in its own coordinates, with everything we add left out. */
 function barBounds(bar) {
-    const text = bar._hpText;
-    const shown = text?.visible;
-    if (text) text.visible = false;
+    const ours = [bar._hpText, bar._tempShield].filter(c => c && !c.destroyed);
+    const shown = ours.map(c => c.visible);
+    ours.forEach(c => { c.visible = false; });
     const bounds = bar.getLocalBounds();
-    if (text) text.visible = shown;
+    ours.forEach((c, i) => { c.visible = shown[i]; });
     return bounds;
+}
+
+/** The HP text as three pieces, so the temp HP can have a colour of its own. */
+function hpTextContainer(bar) {
+    let label = bar._hpText;
+    if (label && !label.destroyed && label._value) return label;
+    if (label && !label.destroyed) label.destroy();
+    const TextClass = foundry.canvas.containers?.PreciseText ?? PIXI.Text;
+    label = new PIXI.Container();
+    for (const key of ['_value', '_temp', '_max']) {
+        label[key] = label.addChild(new TextClass('', getStyle()));
+        label[key].anchor.set(0, 0.5);
+    }
+    bar._hpText = bar.addChild(label);
+    return label;
+}
+
+/** `243 / 243`, or with temp HP `243 +12 / 243`, split so the `+12` can be coloured. */
+export function hpLabel({ value, max, temp }) {
+    const t = Number(temp) || 0;
+    return t > 0
+        ? { value: `${value} `, temp: `+${t}`, max: ` / ${max}` }
+        : { value: `${value}`, temp: null, max: ` / ${max}` };
+}
+
+/**
+ * How much of the bar the temp HP covers, the way dnd5e measures it: against the maximum plus
+ * any temporary maximum, never more than the whole bar.
+ */
+export function tempFraction({ temp, max, tempmax }) {
+    const t = Number(temp) || 0;
+    const displayMax = (Number(max) || 0) + Math.max(0, Number(tempmax) || 0);
+    if (t <= 0 || displayMax <= 0) return 0;
+    return Math.min(t, displayMax) / displayMax;
+}
+
+/** The colour dnd5e uses for temp HP, so ours matches its stripe and any palette it swaps in. */
+function tempColor() {
+    return CONFIG.DND5E?.tokenHPColors?.temp ?? 0x66ccff;
+}
+
+/**
+ * A see-through blue layer over the bar for temp HP, full height with a light edge, reading as a
+ * shield over the green. It sits above dnd5e's thin stripe and below the numbers.
+ */
+function drawTempShield(bar, hp) {
+    const fraction = hp ? tempFraction(hp) : 0;
+    if (!fraction) {
+        if (bar._tempShield && !bar._tempShield.destroyed) bar._tempShield.visible = false;
+        return;
+    }
+    let shield = bar._tempShield;
+    if (!shield || shield.destroyed) {
+        shield = bar._tempShield = bar.addChild(new PIXI.Graphics());
+        bar.sortableChildren = true;
+        shield.zIndex = 50;
+    }
+    shield.visible = false;
+    const b = barBounds(bar);
+    const s = canvas?.dimensions?.uiScale ?? 1;
+    const inset = s;
+    const w = Math.max(0, b.width * fraction - 2 * inset);
+    const h = Math.max(0, b.height - 2 * inset);
+    shield.clear();
+    shield.lineStyle(Math.max(1, s), 0xe6f7ff, 0.9);
+    shield.beginFill(tempColor(), 0.55);
+    shield.drawRoundedRect(b.x + inset, b.y + inset, w, h, 2 * s);
+    shield.endFill();
+    shield.visible = true;
 }
 
 
@@ -464,7 +548,7 @@ Hooks.once('setup', () => {
 // any changes in settings render token fresh aswell. Every setting calls this from onChange,
 // which fires for client settings too (updateSetting only fires for world ones).
 function redrawAll() {
-    style = null;
+    style = tempStyle = null;
     if (canvas?.ready) canvas.tokens.placeables.forEach(t => t.renderFlags?.set({ refreshBars: true }));
 }
 
@@ -478,6 +562,14 @@ function getStyle() {
         align: 'center'
     });
     return style;
+}
+
+function getTempStyle() {
+    if (!tempStyle) {
+        tempStyle = getStyle().clone();
+        tempStyle.fill = foundry.utils.Color.from(tempColor()).css;
+    }
+    return tempStyle;
 }
 
 /** A setting's colour as #rrggbb, whether it comes back as a string or a Color. */

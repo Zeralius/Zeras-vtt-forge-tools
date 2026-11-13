@@ -3,6 +3,13 @@
 Whatever's under the heading for a version gets pulled into that version's GitHub release notes,
 so it's worth keeping this up to date.
 
+## Unreleased
+
+- **Temp HP in the numbers.** With temporary hit points the text reads `243 +12 / 243`, the
+  `+12` in dnd5e's temp HP blue.
+- **Temp HP Shield**, a per-player setting, off by default: temp HP as a see-through blue layer
+  over the full height of the bar, instead of only dnd5e's thin stripe.
+
 ## 1.1.1
 
 - The AC box in the token HUD sits exactly under the HP box, with the shield icon to its left.

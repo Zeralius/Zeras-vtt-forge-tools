@@ -171,6 +171,21 @@ test('hp-in-bar: the adjustment is read from the effect, so sheet edits count', 
     assert.equal(hp.adjustmentOf({ system: { changes: change('1d4') } }), 0);
 });
 
+test('hp-in-bar: temp HP shows as its own piece of the text', () => {
+    assert.deepEqual(hp.hpLabel({ value: 243, max: 243, temp: 12 }), { value: '243 ', temp: '+12', max: ' / 243' });
+    assert.deepEqual(hp.hpLabel({ value: 40, max: 50, temp: 0 }), { value: '40', temp: null, max: ' / 50' });
+    assert.deepEqual(hp.hpLabel({ value: 40, max: 50, temp: null }), { value: '40', temp: null, max: ' / 50' });
+});
+
+test('hp-in-bar: the temp HP shield is measured the way dnd5e measures its stripe', () => {
+    assert.equal(hp.tempFraction({ temp: 25, max: 100, tempmax: 0 }), 0.25);
+    assert.equal(hp.tempFraction({ temp: 25, max: 80, tempmax: 20 }), 0.25);
+    assert.equal(hp.tempFraction({ temp: 25, max: 100, tempmax: -20 }), 0.25);
+    assert.equal(hp.tempFraction({ temp: 500, max: 100, tempmax: 0 }), 1);
+    assert.equal(hp.tempFraction({ temp: 0, max: 100 }), 0);
+    assert.equal(hp.tempFraction({ temp: 5, max: 0 }), 0);
+});
+
 // Every string key a script uses has to be in every language file it ships, or players see the
 // raw key.
 for (const id of listModuleIds({ includeBundle: false })) {

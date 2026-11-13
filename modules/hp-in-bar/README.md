@@ -8,6 +8,16 @@ It wraps Foundry's own bar-drawing routine (through libWrapper if you have it, o
 patching the prototype directly) and draws a text overlay that follows the token around and
 updates whenever HP changes. Only the bar showing `attributes.hp` gets numbers.
 
+## Temporary hit points
+
+When a token has temp HP, the numbers show it in blue: `243 +12 / 243`. The blue is the same one
+dnd5e uses for its temp HP stripe, so the two match.
+
+dnd5e marks temp HP with a thin stripe inside the bar that's easy to miss. Turn on **Temp HP
+Shield** (per player, off by default) and the temp HP becomes a see-through blue layer over the
+full height of the bar with a light edge, like a shield over the green. It's as long as dnd5e's
+stripe and shows to anyone who can see the bar.
+
 ## Who sees the numbers
 
 A world setting, for the GM:
@@ -58,6 +68,7 @@ These are per-player, so everyone can set them to taste:
 | HP Text Color | white | Colour of the numbers. |
 | HP Stroke/Outline Color | black | Outline colour, so the text stays readable over a bright bar. |
 | HP Stroke Width | `4` | How thick that outline is, in pixels. Set it to 0 to turn it off. |
+| Temp HP Shield | off | Temp HP as a blue shield over the bar instead of dnd5e's thin stripe. |
 
 Changing any of them redraws the tokens straight away, no reload needed.
 
