@@ -3,7 +3,7 @@
 Whatever's under the heading for a version gets pulled into that version's GitHub release notes,
 so it's worth keeping this up to date.
 
-## Unreleased
+## 1.1.1
 
 - The AC box in the token HUD sits exactly under the HP box, with the shield icon to its left.
   In 1.1.0 it was shifted to the right.
