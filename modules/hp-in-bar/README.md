@@ -65,14 +65,15 @@ too, which is why it's off unless you want it.
 
 ## Look
 
-These are per-player, so everyone can set them to taste:
+These are per player and per world, so everyone can set them to taste, and a different taste in
+another world stays there:
 
 | Setting | Default | What it does |
 | --- | --- | --- |
-| HP Font Size | `16` | How big the text is. The AC shield scales with it. |
+| HP Font Size | `16` | How big the text is on a 100 px grid; it scales with the scene's grid like the bars. The AC shield scales with it. |
 | HP Text Color | white | Colour of the numbers. |
 | HP Stroke/Outline Color | black | Outline colour, so the text stays readable over a bright bar. |
-| HP Stroke Width | `4` | How thick that outline is, in pixels. Set it to 0 to turn it off. |
+| HP Stroke Width | `4` | How thick that outline is, in pixels on a 100 px grid. Set it to 0 to turn it off. |
 | Temp HP in the Numbers | added in | `243 +100 / 243`, `343 / 243`, or leave temp HP out of the text. |
 | Temp HP Shield | off | Temp HP as a blue shield over the bar instead of dnd5e's thin stripe. |
 

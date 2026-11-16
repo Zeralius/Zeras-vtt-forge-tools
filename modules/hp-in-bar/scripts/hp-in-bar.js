@@ -60,12 +60,12 @@ Hooks.once('init', () => {
     game.settings.register(MODULE_ID, 'acWarning', {
         name: 'HPINBAR.AcWarning',
         hint: 'HPINBAR.AcWarningHint',
-        scope: 'client', config: true, type: Boolean, default: false
+        scope: 'user', config: true, type: Boolean, default: false
     });
     game.settings.register(MODULE_ID, 'tempText', {
         name: 'HPINBAR.TempText',
         hint: 'HPINBAR.TempTextHint',
-        scope: 'client', config: true, onChange: redrawAll, type: String, default: 'combined',
+        scope: 'user', config: true, onChange: redrawAll, type: String, default: 'combined',
         choices: {
             combined: 'HPINBAR.TempTextCombined',
             separate: 'HPINBAR.TempTextSeparate',
@@ -75,32 +75,52 @@ Hooks.once('init', () => {
     game.settings.register(MODULE_ID, 'tempShield', {
         name: 'HPINBAR.TempShield',
         hint: 'HPINBAR.TempShieldHint',
-        scope: 'client', config: true, onChange: redrawAll, type: Boolean, default: false
+        scope: 'user', config: true, onChange: redrawAll, type: Boolean, default: false
     });
     game.settings.register(MODULE_ID, 'fontSize', {
         name: 'HPINBAR.FontSize',
         hint: 'HPINBAR.FontSizeHint',
-        scope: 'client', config: true, onChange: redrawAll, type: Number, default: 16,
+        scope: 'user', config: true, onChange: redrawAll, type: Number, default: 16,
         range: { min: 8, max: 48, step: 1 }
     });
     game.settings.register(MODULE_ID, 'textColor', {
         name: 'HPINBAR.TextColor',
         hint: 'HPINBAR.TextColorHint',
-        scope: 'client', config: true, onChange: redrawAll,
+        scope: 'user', config: true, onChange: redrawAll,
         type: new ColorField({ nullable: false, initial: '#ffffff' }), default: '#ffffff'
     });
     game.settings.register(MODULE_ID, 'strokeColor', {
         name: 'HPINBAR.StrokeColor',
         hint: 'HPINBAR.StrokeColorHint',
-        scope: 'client', config: true, onChange: redrawAll,
+        scope: 'user', config: true, onChange: redrawAll,
         type: new ColorField({ nullable: false, initial: '#000000' }), default: '#000000'
     });
     game.settings.register(MODULE_ID, 'strokeWidth', {
         name: 'HPINBAR.StrokeWidth',
         hint: 'HPINBAR.StrokeWidthHint',
-        scope: 'client', config: true, onChange: redrawAll, type: Number, default: 4,
+        scope: 'user', config: true, onChange: redrawAll, type: Number, default: 4,
         range: { min: 0, max: 12, step: 1 }
     });
+});
+
+// Up to 1.3.0 the personal settings were 'client' scope, which Foundry keeps in the browser for
+// every world at once, so turning the temp HP shield on in one world turned it on in all of them.
+// They are 'user' scope now, kept per world. The old browser values move into the first world
+// opened after the update and are then removed, so no other world picks them up.
+const MOVED_TO_USER_SCOPE = ['acWarning', 'tempText', 'tempShield', 'fontSize', 'textColor', 'strokeColor', 'strokeWidth'];
+Hooks.once('ready', async () => {
+    for (const key of MOVED_TO_USER_SCOPE) {
+        const storageKey = `${MODULE_ID}.${key}`;
+        let raw;
+        try { raw = window.localStorage.getItem(storageKey); } catch { return; }
+        if (raw === null) continue;
+        try {
+            await game.settings.set(MODULE_ID, key, JSON.parse(raw));
+        } catch (err) {
+            console.warn(`${MODULE_ID} | Couldn't carry over the old '${key}' setting:`, err);
+        }
+        window.localStorage.removeItem(storageKey);
+    }
 });
 
 
@@ -143,13 +163,15 @@ function drawBarsWrapper(wrapped, ...args) {
             label.visible = true;
 
             // Only touch what changed: assigning a style or text, even the same one, makes PIXI
-            // render the text again, and Foundry redraws bars often.
+            // render the text again, and Foundry redraws bars often. getStyle comes first: a scene
+            // with another grid size bumps styleVersion there.
+            const textStyle = getStyle();
             const key = `${parts.value}|${parts.temp}|${parts.max}|${styleVersion}`;
             if (label._key !== key) {
                 label._key = key;
-                setText(label._value, parts.value, getStyle());
+                setText(label._value, parts.value, textStyle);
                 setText(label._temp, parts.temp ?? '', getTempStyle());
-                setText(label._max, parts.max, getStyle());
+                setText(label._max, parts.max, textStyle);
                 label._temp.visible = !!parts.temp;
 
                 // Lay the pieces out left to right, centred as a whole.
@@ -189,8 +211,39 @@ function barBounds(bar) {
     return bounds;
 }
 
+/**
+ * How the scene's grid scales the interface: 1 at 100 px squares, 2 at 200 px. Core sizes its bars
+ * by it, so the numbers and the shield do too, keeping them the same size against the token.
+ */
+function uiScale() {
+    const d = canvas?.dimensions;
+    return d?.uiScale || (d?.size ? d.size / 100 : 1);
+}
+
+/**
+ * The resolution our text is rendered at: enough for the closest zoom on this screen, so it stays
+ * sharp instead of being a small texture stretched up. Capped, as the texture grows with it.
+ */
+function textResolution() {
+    const zoom = CONFIG.Canvas?.maxZoom ?? 3;
+    const dpr = window.devicePixelRatio || 1;
+    return Math.min(6, Math.max(2, Math.ceil(zoom * dpr)));
+}
+
+/** A text object for our labels, rendered at our own resolution rather than the screen's. */
+function newText() {
+    const TextClass = foundry.canvas.containers?.PreciseText ?? PIXI.Text;
+    const text = new TextClass('', getStyle());
+    // PreciseText would pick its own resolution and undo ours.
+    if ('_autoResolution' in text) text._autoResolution = false;
+    text.resolution = textResolution();
+    return text;
+}
+
 /** Sets a text's content and style only if they differ, so PIXI doesn't render it again. */
 function setText(text, content, textStyle) {
+    const resolution = textResolution();
+    if (text.resolution !== resolution) text.resolution = resolution;
     if (text.text !== content) text.text = content;
     if (text.style !== textStyle) text.style = textStyle;
 }
@@ -200,10 +253,10 @@ function hpTextContainer(bar) {
     let label = bar._hpText;
     if (label && !label.destroyed && label._value) return label;
     if (label && !label.destroyed) label.destroy();
-    const TextClass = foundry.canvas.containers?.PreciseText ?? PIXI.Text;
     label = new PIXI.Container();
+    label.eventMode = 'none';
     for (const key of ['_value', '_temp', '_max']) {
-        label[key] = label.addChild(new TextClass('', getStyle()));
+        label[key] = label.addChild(newText());
         label[key].anchor.set(0, 0.5);
     }
     bar._hpText = bar.addChild(label);
@@ -291,21 +344,22 @@ function drawAcBadge(token) {
         badge = new PIXI.Container();
         badge.eventMode = 'none';
         badge._shape = badge.addChild(new PIXI.Graphics());
-        const TextClass = foundry.canvas.containers?.PreciseText ?? PIXI.Text;
-        badge._text = badge.addChild(new TextClass('', getStyle()));
+        badge._text = badge.addChild(newText());
         badge._text.anchor.set(0.5, 0.5);
         bars._acBadge = bars.addChild(badge);
         bars.sortableChildren = true;
         badge.zIndex = 200;
     }
 
-    // Sized from the HP font, so one setting scales both.
-    const size = settings().fontSize;
+    // Sized from the HP font, so one setting scales both, and with the grid like the bars.
+    const size = settings().fontSize * uiScale();
     const w = Math.round(size * 1.6);
     const h = Math.round(size * 1.8);
     const adjusted = ac.adjustment !== 0;
 
     // Redrawn only when something on it changed; Foundry redraws bars far more often than that.
+    // getStyle comes first: a scene with another grid size bumps styleVersion there.
+    const textStyle = getStyle();
     const key = `${ac.value}|${adjusted}|${size}|${styleVersion}`;
     if (badge._key !== key) {
         badge._key = key;
@@ -315,7 +369,7 @@ function drawAcBadge(token) {
         drawShield(badge._shape, w, h);
         badge._shape.endFill();
 
-        setText(badge._text, String(ac.value), getStyle());
+        setText(badge._text, String(ac.value), textStyle);
         badge._text.scale.set(0.8);
         badge._text.position.set(0, -h * 0.06);
     }
@@ -603,13 +657,28 @@ function redrawAll() {
     if (canvas?.ready) canvas.tokens.placeables.forEach(t => t.renderFlags?.set({ refreshBars: true }));
 }
 
+// The grid scale the style was built for; a scene with another grid size rebuilds it.
+let styleScale = null;
+
+/**
+ * The HP text style. Font size and outline are set for a 100 px grid and scaled with the scene's
+ * grid in the font itself, not by stretching the finished text, so it renders sharp at any size.
+ */
 function getStyle() {
+    const s = uiScale();
+    if (style && styleScale !== s) {
+        style = tempStyle = null;
+        styleVersion++;
+    }
+    styleScale = s;
     style ??= new PIXI.TextStyle({
         fontFamily: 'Signika, Arial, sans-serif',
-        fontSize: game.settings.get(MODULE_ID, 'fontSize'),
+        fontSize: game.settings.get(MODULE_ID, 'fontSize') * s,
         fill: cssColor(game.settings.get(MODULE_ID, 'textColor'), '#ffffff'),
         stroke: cssColor(game.settings.get(MODULE_ID, 'strokeColor'), '#000000'),
-        strokeThickness: game.settings.get(MODULE_ID, 'strokeWidth'),
+        strokeThickness: game.settings.get(MODULE_ID, 'strokeWidth') * s,
+        // Round joins keep the outline from spiking out at sharp corners.
+        lineJoin: 'round',
         align: 'center'
     });
     return style;

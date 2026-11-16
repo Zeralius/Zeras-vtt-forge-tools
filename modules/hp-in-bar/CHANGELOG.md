@@ -3,6 +3,18 @@
 Whatever's under the heading for a version gets pulled into that version's GitHub release notes,
 so it's worth keeping this up to date.
 
+## Unreleased
+
+- **The numbers scale with the scene's grid**, like the bars do. On a map with 200 px squares
+  the text and the AC shield used to stay at their 100 px size and look tiny next to the bar.
+  The font size setting is now the size at a 100 px grid.
+- **Sharper text.** The numbers are rendered at a resolution good for the closest zoom, instead
+  of a small texture stretched up, and the outline has round corners instead of spikes.
+- **Personal settings stay in their world.** Font, colours, outline, temp HP display and the AC
+  warning were kept in the browser for every world at once, so turning the temp HP shield off in
+  one world didn't stick when you came back from another. They are now per player and per
+  world. Your current choices move into the first world you open after updating.
+
 ## 1.3.0
 
 - **Temp HP in the Numbers**, a per-player setting: `343 / 243` with temp HP added in (the new
