@@ -3,7 +3,7 @@
 Whatever's under the heading for a version gets pulled into that version's GitHub release notes,
 so it's worth keeping this up to date.
 
-## Unreleased
+## 1.3.1
 
 - **The numbers scale with the scene's grid**, like the bars do. On a map with 200 px squares
   the text and the AC shield used to stay at their 100 px size and look tiny next to the bar.
