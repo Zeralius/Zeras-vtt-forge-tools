@@ -2,7 +2,7 @@
 
 Whatever sits under a version heading here gets pulled into that version's GitHub release notes.
 
-## Unreleased
+## 0.1.0
 
 - First version. Counts every die rolled in chat while the GM has a session running, per
   player, per die size and per face, for each session and the whole campaign.
