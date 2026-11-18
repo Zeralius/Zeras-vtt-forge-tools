@@ -14,7 +14,7 @@ with a specific system say so.
 | [HP & AC in Bar](modules/hp-in-bar) | `hp-in-bar` | D&D 5e | 1.3.1 |
 | [Flipside](modules/flipside) | `flipside` | Any | 0.1.0 |
 | [Meows Kit](modules/meows-kit) | `meows-kit` | Any | 0.2.0 |
-| [Dice Ledger](modules/dice-ledger) | `dice-ledger` | Any | unreleased |
+| [Dice Ledger](modules/dice-ledger) | `dice-ledger` | Any | 0.1.0 |
 
 **HP & AC in Bar** puts the actual numbers inside the token's health bar, so you can read `45 / 50`
 straight off the canvas instead of opening a sheet or hovering. The AC sits on the bar as a small
@@ -70,6 +70,7 @@ Each module has its own manifest URL:
 | HP & AC in Bar | `https://raw.githubusercontent.com/Zeralius/Zeras-vtt-forge-tools/main/modules/hp-in-bar/module.json` |
 | Flipside | `https://raw.githubusercontent.com/Zeralius/Zeras-vtt-forge-tools/main/modules/flipside/module.json` |
 | Meows Kit | `https://raw.githubusercontent.com/Zeralius/Zeras-vtt-forge-tools/main/modules/meows-kit/module.json` |
+| Dice Ledger | `https://raw.githubusercontent.com/Zeralius/Zeras-vtt-forge-tools/main/modules/dice-ledger/module.json` |
 
 Or grab a zip from the [releases page](https://github.com/Zeralius/Zeras-vtt-forge-tools/releases)
 and drop the extracted folder into `Data/modules/`.
