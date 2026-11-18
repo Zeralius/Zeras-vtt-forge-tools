@@ -1,0 +1,36 @@
+{
+  "id": "dice-ledger",
+  "title": "Dice Ledger",
+  "description": "Counts every die your players roll, face by face, for the whole campaign: how many d20s each player rolled and how many came up 1 or 20. Only counts while the GM has a session running.",
+  "authors": [
+    {
+      "name": "Zeralius"
+    }
+  ],
+  "version": "0.1.0",
+  "compatibility": {
+    "minimum": "13",
+    "verified": "14"
+  },
+  "esmodules": [
+    "scripts/dice-ledger.js"
+  ],
+  "styles": [
+    "styles/dice-ledger.css"
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    },
+    {
+      "lang": "de",
+      "name": "Deutsch",
+      "path": "lang/de.json"
+    }
+  ],
+  "url": "https://github.com/Zeralius/Zeras-vtt-forge-tools",
+  "manifest": "https://raw.githubusercontent.com/Zeralius/Zeras-vtt-forge-tools/main/modules/dice-ledger/module.json",
+  "download": "https://github.com/Zeralius/Zeras-vtt-forge-tools/releases/download/dice-ledger-v0.1.0/dice-ledger.zip"
+}

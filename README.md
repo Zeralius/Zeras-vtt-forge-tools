@@ -14,6 +14,7 @@ with a specific system say so.
 | [HP & AC in Bar](modules/hp-in-bar) | `hp-in-bar` | D&D 5e | 1.3.1 |
 | [Flipside](modules/flipside) | `flipside` | Any | 0.1.0 |
 | [Meows Kit](modules/meows-kit) | `meows-kit` | Any | 0.2.0 |
+| [Dice Ledger](modules/dice-ledger) | `dice-ledger` | Any | unreleased |
 
 **HP & AC in Bar** puts the actual numbers inside the token's health bar, so you can read `45 / 50`
 straight off the canvas instead of opening a sheet or hovering. The AC sits on the bar as a small
@@ -29,6 +30,11 @@ folder with a `kit.json` and the pictures, uploaded through Foundry's file picke
 Folder of Scenes (one per map, gridded or gridless as the kit says), a Folder of journal entries
 for the handouts and notes, and a Folder of actors for the tokens. Five maps in, five scenes out,
 in order.
+
+**Dice Ledger** counts every die your players roll, face by face, for the whole campaign: how
+many d20s each player rolled and how many came up 1 or 20, with a chart per die. Only rolls made
+while the GM has a session running count, so someone joining and testing their dice doesn't
+skew it.
 
 ---
 

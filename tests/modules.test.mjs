@@ -8,6 +8,7 @@ import { listModuleIds, moduleDir, readManifest } from '../scripts/lib/modules.m
 const meows = await loadModule('meows-kit');
 const flipside = await loadModule('flipside');
 const hp = await loadModule('hp-in-bar');
+const ledger = await loadModule('dice-ledger');
 
 test('meows-kit: a whole grid of 50 or more keeps the scene as it is', () => {
     const fit = meows.fitGrid({ width: 2000, height: 1500, gridSize: 100, gridOffsetX: 7, gridOffsetY: 3 });
@@ -210,3 +211,79 @@ for (const id of listModuleIds({ includeBundle: false })) {
         }
     });
 }
+
+// A die as Foundry hands it over: a denomination, faces and results, some set aside.
+const d = (faces, ...results) => ({
+    denomination: 'd', faces,
+    results: results.map(r => typeof r === 'number' ? { result: r, active: true } : r)
+});
+
+test('dice-ledger: only the dice count, never bonuses, coins or fate dice', () => {
+    const rolls = [{ dice: [d(20, 17), d(6, 3, 5),
+        { denomination: 'f', faces: 3, results: [{ result: 1, active: true }] },
+        { denomination: 'c', faces: 2, results: [{ result: 1, active: true }] }] }];
+    assert.deepEqual(ledger.diceOf(rolls), [
+        { faces: 20, results: [{ face: 17, dropped: false }] },
+        { faces: 6, results: [{ face: 3, dropped: false }, { face: 5, dropped: false }] }
+    ]);
+    assert.deepEqual(ledger.diceOf([]), []);
+    assert.deepEqual(ledger.diceOf(undefined), []);
+});
+
+test('dice-ledger: the lower die of advantage is counted as rolled and as dropped', () => {
+    const dice = ledger.diceOf([{ dice: [d(20, { result: 1, active: false, discarded: true }, 14)] }]);
+    const tally = ledger.addDice({}, 'u1', dice);
+    assert.deepEqual(tally.u1[20], { rolled: { 1: 1, 14: 1 }, dropped: { 1: 1 } });
+
+    const all = ledger.summarize(20, [tally.u1[20]]);
+    assert.equal(all.total, 2);
+    assert.equal(all.lowest, 1);
+    const kept = ledger.summarize(20, [tally.u1[20]], { includeDropped: false });
+    assert.equal(kept.total, 1);
+    assert.equal(kept.lowest, 0);
+    assert.equal(kept.average, 14);
+});
+
+test('dice-ledger: a hundred d20s, how many came up 1', () => {
+    const tally = {};
+    for (let i = 0; i < 100; i++) ledger.addDice(tally, 'u1', [{ faces: 20, results: [{ face: (i % 20) + 1, dropped: false }] }]);
+    const s = ledger.summarize(20, [tally.u1[20]]);
+    assert.equal(s.total, 100);
+    assert.equal(s.lowest, 5);
+    assert.equal(s.highest, 5);
+    assert.equal(s.average, 10.5);
+    assert.equal(s.expected, 10.5);
+});
+
+test('dice-ledger: sessions add up into the campaign', () => {
+    const one = ledger.addDice({}, 'u1', [{ faces: 20, results: [{ face: 20, dropped: false }] }]);
+    const two = ledger.addDice({}, 'u1', [{ faces: 20, results: [{ face: 20, dropped: false }, { face: 1, dropped: true }] }]);
+    ledger.addDice(two, 'u2', [{ faces: 8, results: [{ face: 8, dropped: false }] }]);
+    const all = ledger.mergeTallies(one, two);
+    assert.deepEqual(all.u1[20], { rolled: { 20: 2, 1: 1 }, dropped: { 1: 1 } });
+    assert.deepEqual(all.u2[8].rolled, { 8: 1 });
+    assert.deepEqual(one.u1[20].rolled, { 20: 1 }, 'merging leaves the sessions alone');
+    assert.deepEqual(ledger.dieSizes(all), [20, 8]);
+});
+
+test('dice-ledger: who sees which rolls', () => {
+    assert.equal(ledger.visibilityOf({ whisper: [], blind: false }), 'public');
+    assert.equal(ledger.visibilityOf({ whisper: ['gm'], blind: false }), 'private');
+    assert.equal(ledger.visibilityOf({ whisper: ['me'], blind: false }), 'private', 'a self roll');
+    assert.equal(ledger.visibilityOf({ whisper: ['gm'], blind: true }), 'blind');
+    assert.equal(ledger.visibilityOf({}), 'public');
+
+    const session = { public: { a: 1 }, private: { me: 2, other: 3 }, blind: { me: 4 } };
+    assert.deepEqual(ledger.visibleTallies(session, 'gm', true), [{ a: 1 }, { me: 2, other: 3 }, { me: 4 }]);
+    assert.deepEqual(ledger.visibleTallies(session, 'me', false), [{ a: 1 }, { me: 2 }],
+        'a player sees their own whispers, not those of other players or their blind rolls');
+    assert.deepEqual(ledger.visibleTallies(session, 'nobody', false), [{ a: 1 }]);
+});
+
+test('dice-ledger: a missing or broken ledger becomes an empty one', () => {
+    assert.deepEqual(ledger.normalizeLedger(undefined), { version: 1, active: null, names: {}, sessions: [] });
+    const fixed = ledger.normalizeLedger({ active: 'gone', sessions: [{ id: 'a', name: 'S1' }] });
+    assert.equal(fixed.active, null, 'an active session that no longer exists is not running');
+    assert.deepEqual(fixed.sessions[0].public, {});
+    assert.deepEqual(fixed.sessions[0].blind, {}, 'sessions from before blind rolls were kept apart get an empty blind part');
+});

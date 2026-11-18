@@ -2,6 +2,7 @@
 
 Install this and Foundry will offer to install every module in the collection along with it:
 
+- `dice-ledger`
 - `flipside`
 - `hp-in-bar`
 - `meows-kit`
